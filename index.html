@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Financiero & Proyecciones - Red de Unidades Deportivas</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Print styles for executive reports */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+      }
+      header, #scenarioSimulator, #tabsBar, #btnExportCSV, #btnDocModal, #toast {
+        display: none !important;
+      }
+      .bg-slate-800, .bg-slate-900 {
+        background-color: #ffffff !important;
+        border-color: #e2e8f0 !important;
+        color: #0f172a !important;
+      }
+      .text-white {
+        color: #0f172a !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100">
+
+  <!-- Top Executive Navigation Bar -->
+  <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between py-3 gap-3">
+        
+        <!-- Brand identity -->
+        <div class="flex items-center space-x-3.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+            RD
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-bold text-white tracking-tight">Portal Financiero & Proyección de Ingresos</h1>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Horizonte 2024–2027</span>
+            </div>
+            <p class="text-xs text-slate-400">Inteligencia Financiera para la Red de 8 Unidades Deportivas</p>
+          </div>
+        </div>
+
+        <!-- Utility Bar -->
+        <div class="flex items-center space-x-2.5 self-end md:self-auto">
+          <button id="btnDocModal" class="inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 transition">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Metodología</span>
+          </button>
+
+          <button id="btnPrintReport" class="inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 transition">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>Imprimir</span>
+          </button>
+
+          <button id="btnExportCSV" class="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-emerald-600/20 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Descargar CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Facility Tabs Navigation -->
+      <div id="tabsBar" class="flex space-x-1.5 overflow-x-auto pb-2 pt-1 border-t border-slate-800/80 scrollbar-none">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Active Entity Header Banner -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center space-x-3">
+          <span class="inline-block w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+          <h2 id="activeFacilityTitle" class="text-xl sm:text-2xl font-black text-white tracking-tight">Red Deportiva (Consolidado Global)</h2>
+          <span id="activeFacilityTag" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold font-mono">Consolidado 8 Unidades</span>
+        </div>
+        <p class="text-xs text-slate-400 mt-1.5 max-w-2xl" id="activeFacilitySubtitle">
+          Agrupación integral de Coapa, Cuemanco, Azcapotzalco, Tlalli, Coacalco, COM, Izcalli y La Salle &bull; 33 meses reales (Ene 2024 - Sep 2026) y 15 meses de proyección econométrica (Oct 2026 - Dic 2027).
+        </p>
+      </div>
+
+      <!-- Econometric / Operational Health Indicators -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="bg-slate-800/80 border border-slate-700/70 rounded-xl px-3.5 py-2 text-center min-w-[90px]">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ajuste R²</div>
+          <div class="text-sm font-black text-emerald-400 font-mono" id="statR2">0.941</div>
+        </div>
+        <div class="bg-slate-800/80 border border-slate-700/70 rounded-xl px-3.5 py-2 text-center min-w-[110px]">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inercia Mensual (β₁)</div>
+          <div class="text-sm font-black text-white font-mono" id="statBeta">+$167,400/m</div>
+        </div>
+        <div class="bg-slate-800/80 border border-slate-700/70 rounded-xl px-3.5 py-2 text-center min-w-[110px]">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Horizonte Total</div>
+          <div class="text-sm font-black text-cyan-400 font-mono">48 Meses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive KPI Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: 2026 Cierre Estimado -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cierre 2026 Estimado</span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-medium">9m Real + 3m Proy</span>
+        </div>
+        <div class="mt-3 flex items-baseline">
+          <span class="text-2xl sm:text-3xl font-black text-white font-mono" id="kpiAnnual2026">$217.37M</span>
+        </div>
+        <div class="mt-2.5 flex items-center text-xs font-semibold text-emerald-400" id="kpiGrowth2026">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          <span id="kpiGrowth2026Text">+12.4% vs 2025</span>
+        </div>
+        <div class="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-emerald-500/5 pointer-events-none"></div>
+      </div>
+
+      <!-- Card 2: 2027 Proyección Total -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Proyección Total 2027</span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-semibold">12 Meses</span>
+        </div>
+        <div class="mt-3 flex items-baseline">
+          <span class="text-2xl sm:text-3xl font-black text-emerald-300 font-mono" id="kpiAnnual2027">$242.68M</span>
+        </div>
+        <div class="mt-2.5 flex items-center text-xs font-semibold text-emerald-400" id="kpiGrowth2027">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          <span id="kpiGrowth2027Text">+11.6% vs 2026 Est.</span>
+        </div>
+        <div class="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-emerald-500/10 pointer-events-none"></div>
+      </div>
+
+      <!-- Card 3: Promedio Mensual 2027 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Promedio Mensual 2027</span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-medium">Capacidad Media</span>
+        </div>
+        <div class="mt-3 flex items-baseline">
+          <span class="text-2xl sm:text-3xl font-black text-white font-mono" id="kpiAvgMonthly2027">$20.22M</span>
+        </div>
+        <div class="mt-2.5 text-xs text-slate-400 truncate" id="kpiAvgComparison">
+          vs $18.11M en 2026 | $16.11M en 2025
+        </div>
+        <div class="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-blue-500/5 pointer-events-none"></div>
+      </div>
+
+      <!-- Card 4: Mes Pico 2027 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pico Máximo Previsto</span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono font-semibold" id="kpiPeak2027Text">Mayo 2027</span>
+        </div>
+        <div class="mt-3 flex items-baseline">
+          <span class="text-2xl sm:text-3xl font-black text-purple-300 font-mono" id="kpiPeak2027Amount">$22.45M</span>
+        </div>
+        <div class="mt-2.5 text-xs text-slate-400">
+          Mayor estacionalidad anual registrada
+        </div>
+        <div class="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-purple-500/5 pointer-events-none"></div>
+      </div>
+
+    </div>
+
+    <!-- Scenario Sensitivity Simulator -->
+    <div id="scenarioSimulator" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider">Simulador Ejecutivo</span>
+            <h3 class="text-base font-bold text-white">Sensibilidad de Pronóstico (Octubre 2026 – Diciembre 2027)</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Modela escenarios de estrés financiero (-15%) o crecimiento acelerado (+15%) sobre todos los meses proyectados.
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-4 bg-slate-950/80 p-3 rounded-xl border border-slate-800 w-full sm:w-auto">
+          <div class="flex items-center space-x-3 w-full sm:w-64">
+            <span class="text-xs font-mono text-rose-400 font-bold">-15%</span>
+            <input id="scenarioSlider" type="range" min="-15" max="15" value="0" step="1" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+            <span class="text-xs font-mono text-emerald-400 font-bold">+15%</span>
+          </div>
+          <div class="min-w-[90px] text-right">
+            <span id="scenarioValueBadge" class="text-sm font-bold font-mono px-2.5 py-1 rounded bg-slate-900 text-emerald-400 border border-slate-700">0% (Base)</span>
+          </div>
+          <button id="btnResetScenario" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 transition">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Badge Horizon Switcher -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-wrap gap-2">
+        <span class="text-xs text-slate-400 font-medium">Desglose de valores proyectados:</span>
+        <div class="flex space-x-2">
+          <button id="btnBadgeQ4" class="px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">Cierre Q4 2026 (3 Meses)</button>
+          <button id="btnBadge2027" class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition">Todo 2027 (12 Meses)</button>
+        </div>
+      </div>
+
+      <!-- Forecast Badges Container -->
+      <div id="forecastBadgesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-1">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Primary Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Main Line / Horizon Chart -->
+      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+          <div>
+            <h3 class="text-base font-bold text-white tracking-tight" id="mainChartTitle">Evolución Histórica y Proyección de Ingresos (48 Meses)</h3>
+            <p class="text-xs text-slate-400">Valores consolidados en Pesos Mexicanos ($MXN)</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btnViewTimeline" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition">
+              Línea de Tiempo Continua
+            </button>
+            <button id="btnViewComparison" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">
+              Comparativa 2024–2027
+            </button>
+          </div>
+        </div>
+
+        <div class="relative w-full h-80 sm:h-96 mt-4">
+          <canvas id="mainChart"></canvas>
+        </div>
+
+        <!-- Chart Legend & Visual Cues -->
+        <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400 pt-3 border-t border-slate-800/80 mt-2">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+            <span>Histórico Real (33 meses)</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+            <span>Proyección Modelo (15 meses)</span>
+          </div>
+          <div class="flex items-center space-x-1.5" id="legendBudgetIndicator">
+            <span class="w-3 h-3 rotate-45 bg-purple-500 inline-block"></span>
+            <span class="font-medium text-purple-300">Presupuesto Meta</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-3 h-3 rounded-sm bg-emerald-400/20 inline-block border border-emerald-500"></span>
+            <span>Intervalo Confianza (95%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Chart: Seasonal / Unit Breakdown -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div>
+          <div class="pb-3 border-b border-slate-800">
+            <h3 class="text-base font-bold text-white tracking-tight" id="seasonalChartTitle">Patrón Estacional Mensual</h3>
+            <p class="text-xs text-slate-400" id="seasonalChartSubtitle">Promedio histórico y meses de máxima recaudación</p>
+          </div>
+          <div class="relative w-full h-64 mt-4">
+            <canvas id="seasonalityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Insights Callout -->
+        <div class="bg-slate-950/80 rounded-xl p-3.5 border border-slate-800 mt-4 text-xs space-y-1.5 text-slate-400">
+          <div class="font-bold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Análisis de Inteligencia Financiera
+          </div>
+          <p id="insightSeasonality1">• <strong>Picos Anuales:</strong> Mayo y Noviembre presentan los máximos históricos de facturación en toda la red.</p>
+          <p id="insightSeasonality2">• <strong>Tendencia Estructural:</strong> Crecimiento orgánico sostenido a tasa promedio de +11.6% para 2027.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Annual Performance Matrix Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- 2024 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ejercicio 2024 (Real)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-medium">12 Meses Reales</span>
+        </div>
+        <div class="text-2xl font-black text-white font-mono mt-3" id="cardTotal2024">$0</div>
+        <div class="text-xs text-slate-400 mt-1" id="cardAvg2024">Promedio: $0/mes</div>
+      </div>
+
+      <!-- 2025 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ejercicio 2025 (Real)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono font-bold" id="cardGrowth2025">+0% vs '24</span>
+        </div>
+        <div class="text-2xl font-black text-white font-mono mt-3" id="cardTotal2025">$0</div>
+        <div class="text-xs text-slate-400 mt-1" id="cardAvg2025">Promedio: $0/mes</div>
+      </div>
+
+      <!-- 2026 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ejercicio 2026 (Estimado)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold" id="cardGrowth2026">+0% vs '25</span>
+        </div>
+        <div class="text-2xl font-black text-white font-mono mt-3" id="cardTotal2026">$0</div>
+        <div class="text-xs text-slate-400 mt-1" id="cardAvg2026">9m Reales + 3m Proy</div>
+      </div>
+
+      <!-- 2027 -->
+      <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Ejercicio 2027 (Proyectado)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold" id="cardGrowth2027">+0% vs '26</span>
+        </div>
+        <div class="text-2xl font-black text-emerald-300 font-mono mt-3" id="cardTotal2027">$0</div>
+        <div class="text-xs text-emerald-400/90 font-medium mt-1" id="cardAvg2027">12 meses proyectados</div>
+      </div>
+
+    </div>
+
+    <!-- Detailed Financial Data Table -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+      <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base font-bold text-white tracking-tight">Desglose Financiero Mensual (2024–2027)</h3>
+          <p class="text-xs text-slate-400">Auditoría completa de 48 meses con variación interanual (YoY) e intervalos de confianza</p>
+        </div>
+        
+        <!-- Table Filters -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition" data-filter="all">Todos (48m)</button>
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition" data-filter="2027">2027 (Proy)</button>
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition" data-filter="2026">2026</button>
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition" data-filter="proj">Solo Proyecciones</button>
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition" data-filter="2025">2025</button>
+          <button class="table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition" data-filter="2024">2024</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[440px]">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="bg-slate-950 text-slate-400 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-800 z-10">
+            <tr>
+              <th class="py-3 px-4">Periodo</th>
+              <th class="py-3 px-4">Año</th>
+              <th class="py-3 px-4">Mes</th>
+              <th class="py-3 px-4 text-right">Ingreso ($MXN)</th>
+              <th class="py-3 px-4 text-center">Tipo</th>
+              <th class="py-3 px-4 text-right">Variación YoY</th>
+              <th class="py-3 px-4 text-right">Intervalo Confianza (95%)</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-slate-800/80 font-mono">
+            <!-- Rendered by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Methodology & Documentation Modal -->
+  <div id="methodologyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">M</div>
+          <h3 class="text-base font-bold text-white">Metodología Econométrica del Modelo</h3>
+        </div>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <p>
+          El modelo predictivo implementado en este portal se fundamenta en una <strong>Regresión Lineal Múltiple con Tendencia Determinística y Variables Dummy Estacionales Mensuales (OLS)</strong>:
+        </p>
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-300 text-center">
+          Ingreso_t = β₀ + β₁·t + ∑ (γ_m · D_m,t) + ε_t
+        </div>
+        <ul class="list-disc list-inside space-y-1.5 text-slate-400">
+          <li><strong>β₀ (Intercepto):</strong> Nivel base de ingreso ajustado al inicio de la serie temporal (Enero 2024).</li>
+          <li><strong>β₁ (Pendiente de Tendencia):</strong> Tasa de expansión orgánica mensual inercial de la unidad.</li>
+          <li><strong>γ_m (Coeficientes de Estacionalidad):</strong> Factores específicos de fluctuación para cada mes calendario respecto al mes base.</li>
+          <li><strong>Intervalos de Confianza (95%):</strong> Basados en la distribución t-Student con el error cuadrático medio (MSE) de los residuos.</li>
+          <li><strong>Consolidado Global:</strong> Suma lineal y vectorizada de las matrices proyectadas para todas las 8 instalaciones deportivas de la red.</li>
+        </ul>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button id="btnCloseModalBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-medium transition-all duration-300 transform translate-y-20 opacity-0 z-50 flex items-center space-x-2">
+    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMessage">Operación exitosa</span>
+  </div>
+
+  <script>
+    // Configuration of facilities including Global Network rollup
+    const facilities = [
+      { id: 'global', name: '🌐 Red Completa' },
+      { id: 'coapa', name: 'Coapa' },
+      { id: 'cuemanco', name: 'Cuemanco' },
+      { id: 'azc', name: 'Azc' },
+      { id: 'tlalli', name: 'Tlalli' },
+      { id: 'coacalco', name: 'Coacalco' },
+      { id: 'com', name: 'COM' },
+      { id: 'izcalli', name: 'Izcalli' },
+      { id: 'lasalle', name: 'La Salle' }
+    ];
+
+    let activeFacilityId = 'global';
+    let scenarioMultiplier = 0.0;
+    let currentViewMode = 'timeline';
+    let currentFilter = 'all';
+    let currentBadgeHorizon = '2027';
+
+    let mainChartInstance = null;
+    let seasonalityChartInstance = null;
+
+    const monthNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const monthShort = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    // 48-Month Generator function
+    function buildFullDataSeries(rawList, q4Projections, year2027Projections) {
+      const series = [];
+      let idx = 0;
+
+      // 2024 Real (12m)
+      for (let m = 0; m < 12; m++) {
+        series.push({
+          date: `2024-${String(m + 1).padStart(2, '0')}-01`,
+          label: `${monthShort[m]} 24`,
+          year: 2024,
+          month: monthNames[m],
+          monthNum: m + 1,
+          value: rawList[idx++],
+          type: 'real'
+        });
+      }
+
+      // 2025 Real (12m)
+      for (let m = 0; m < 12; m++) {
+        series.push({
+          date: `2025-${String(m + 1).padStart(2, '0')}-01`,
+          label: `${monthShort[m]} 25`,
+          year: 2025,
+          month: monthNames[m],
+          monthNum: m + 1,
+          value: rawList[idx++],
+          type: 'real'
+        });
+      }
+
+      // 2026 Real (9m: Ene-Sep)
+      for (let m = 0; m < 9; m++) {
+        series.push({
+          date: `2026-${String(m + 1).padStart(2, '0')}-01`,
+          label: `${monthShort[m]} 26`,
+          year: 2026,
+          month: monthNames[m],
+          monthNum: m + 1,
+          value: rawList[idx++],
+          type: 'real'
+        });
+      }
+
+      // 2026 Q4 Projections (3m: Oct, Nov, Dic)
+      q4Projections.forEach((p, i) => {
+        const m = 9 + i;
+        series.push({
+          date: `2026-${String(m + 1).padStart(2, '0')}-01`,
+          label: `${monthShort[m]} 26 (P)`,
+          year: 2026,
+          month: monthNames[m],
+          monthNum: m + 1,
+          value: p.val,
+          baseValue: p.val,
+          ciLower: p.low,
+          ciUpper: p.high,
+          type: 'proj'
+        });
+      });
+
+      // 2027 Projections (12m: Ene-Dic)
+      year2027Projections.forEach((p, m) => {
+        series.push({
+          date: `2027-${String(m + 1).padStart(2, '0')}-01`,
+          label: `${monthShort[m]} 27 (P)`,
+          year: 2027,
+          month: monthNames[m],
+          monthNum: m + 1,
+          value: p.val,
+          baseValue: p.val,
+          ciLower: p.low,
+          ciUpper: p.high,
+          type: 'proj'
+        });
+      });
+
+      return series;
+    }
+
+    // Individual Raw Series (33 real months: Ene 24 to Sep 26)
+    const coapaRaw = [
+      3417274.62, 3639552.70, 3472406.74, 3730541.79, 4084536.51, 4154729.24,
+      3980068.68, 4025981.20, 3410673.52, 4049739.66, 3915303.70, 3413236.09,
+      3865787.53, 4086367.77, 4188093.91, 4334461.00, 4599398.00, 4618841.00,
+      4645607.00, 3680895.00, 4052009.00, 4304653.00, 4631624.00, 3903057.54,
+      4279727.00, 4460541.00, 4570568.00, 4601028.00, 5245409.00, 5041577.00,
+      4824361.00, 4189592.00, 4479101.00
+    ];
+
+    const cuemancoRaw = [
+      2336069.98, 2318980.50, 2423508.62, 2825008.40, 3039898.73, 2915163.25,
+      2765666.71, 2724939.03, 2227343.42, 2264406.36, 2435868.50, 1942150.93,
+      2657862.95, 2565240.74, 2821933.50, 2750621.00, 2974368.00, 2957102.00,
+      2950823.00, 3063381.00, 2846916.00, 2793259.00, 3335624.00, 2621192.33,
+      2869633.00, 3073630.00, 3299083.00, 3360329.00, 3822595.00, 3389397.00,
+      3387811.00, 3440869.00, 3422751.00
+    ];
+
+    const azcRaw = [
+      1639932.30, 1486531.14, 1655053.32, 1753429.43, 2007075.70, 1858755.99,
+      1942884.65, 1960751.24, 2044237.19, 1974629.60, 2012967.50, 1488912.76,
+      1871390.00, 1923593.00, 2110951.00, 2163015.00, 2231040.00, 2000583.00,
+      2204109.00, 2218438.00, 2077785.00, 2233958.00, 2276374.50, 1655195.33,
+      2178448.29, 2137850.99, 2329205.92, 2438391.42, 2507888.52, 2343471.99,
+      2484461.41, 2499582.00, 2476020.00
+    ];
+
+    const tlalliRaw = [
+      1150451.41, 1601383.21, 1499150.76, 1494254.85, 1718947.83, 1626506.63,
+      1441834.24, 1344566.51, 1365780.00, 1509540.90, 1365915.00, 1107309.50,
+      1571643.86, 1230555.00, 1747548.19, 1725688.00, 1897954.00, 2000582.11,
+      2071732.00, 1949405.00, 1875241.00, 1731664.00, 1709694.00, 1341204.59,
+      1850400.12, 1556330.51, 2110830.77, 2085265.10, 2289455.03, 2414086.38,
+      2278698.95, 2353274.48, 2000994.00
+    ];
+
+    const coacalcoRaw = [
+      983209.96, 961139.68, 1122461.43, 1423992.13, 1286320.00, 1156892.51,
+      1157075.47, 1110666.50, 1075243.35, 916883.48, 741436.00, 807933.60,
+      402622.00, 492335.00, 717156.50, 830135.00, 1110181.00, 1107441.00,
+      1069948.00, 1031745.00, 971304.00, 1095664.00, 962163.00, 763071.03,
+      1042082.96, 983971.18, 1134332.43, 1408506.32, 1634943.80, 1299108.00,
+      1158834.00, 1151960.00, 1373207.00
+    ];
+
+    const comRaw = [
+      949329.75, 814775.24, 635558.45, 912304.19, 1290326.59, 956083.89,
+      1071559.75, 1028071.54, 1082782.36, 1165482.17, 1320137.50, 1093476.00,
+      1052944.00, 1133969.29, 1256262.74, 1226876.50, 1390479.00, 1196448.00,
+      1140920.00, 1237439.00, 1005139.00, 1254066.00, 1272326.00, 1126001.77,
+      1231944.48, 1326744.07, 1469827.41, 1435445.51, 1626860.43, 1399844.16,
+      1334876.40, 1447803.63, 1670856.00
+    ];
+
+    const izcalliRaw = [
+      1076625.52, 1139793.23, 1162118.77, 1326723.34, 1432796.27, 1288740.57,
+      1288740.57, 1203841.00, 1271006.69, 1339348.36, 1229086.00, 1229086.00,
+      1196302.00, 1235321.00, 1380561.57, 1364411.00, 1588909.00, 1431758.00,
+      1301546.00, 1384265.00, 1410928.00, 1341420.00, 1341353.00, 994499.02,
+      1324833.02, 1373885.20, 1529620.57, 1510108.80, 1797217.99, 1619400.11,
+      1500773.00, 1556674.70, 1655421.00
+    ];
+
+    const lasalleRaw = [
+      1199553.31, 670973.98, 891118.33, 1008995.89, 1167081.98, 995789.34,
+      1178456.74, 1109168.08, 1132169.35, 1254548.16, 1285699.00, 1120378.00,
+      1173023.00, 742942.00, 1284153.00, 1152227.00, 1308634.00, 1313090.00,
+      1315522.00, 1279748.00, 1361150.00, 1381184.00, 1412782.00, 1376765.11,
+      1400040.00, 1331840.00, 1447240.00, 1422990.00, 1488550.00, 1501620.00,
+      1532040.00, 1512020.00, 1509094.00
+    ];
+
+    const facilityDataStore = {
+      coapa: {
+        title: 'Unidad Deportiva Coapa',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Instalación Premium',
+        r2: '0.913',
+        betaTrend: '+$35,920 / mes',
+        peakMonth2027: 'Mayo 2027',
+        budgets: { '2026-10-01': 4692072.00, '2026-11-01': 5099582.00, '2026-12-01': 4079665.00 },
+        series: buildFullDataSeries(
+          coapaRaw,
+          [{ val: 4823771.90, low: 4529601.86, high: 5117941.13 }, { val: 4920039.42, low: 4625868.78, high: 5214208.05 }, { val: 4304722.38, low: 4010552.03, high: 4598891.30 }],
+          [{ val: 4710800.00, low: 4385000.00, high: 5036000.00 }, { val: 4882800.00, low: 4557000.00, high: 5208000.00 }, { val: 4980500.00, low: 4655000.00, high: 5306000.00 }, { val: 5126900.00, low: 4801000.00, high: 5452000.00 }, { val: 5512100.00, low: 5186000.00, high: 5838000.00 }, { val: 5441800.00, low: 5116000.00, high: 5767000.00 }, { val: 5284200.00, low: 4958000.00, high: 5610000.00 }, { val: 4730100.00, low: 4404000.00, high: 5056000.00 }, { val: 4808900.00, low: 4483000.00, high: 5135000.00 }, { val: 5254800.00, low: 4929000.00, high: 5580000.00 }, { val: 5351100.00, low: 5025000.00, high: 5677000.00 }, { val: 4735800.00, low: 4410000.00, high: 5062000.00 }]
+        )
+      },
+      cuemanco: {
+        title: 'Unidad Deportiva Cuemanco',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Sur-Oriente',
+        r2: '0.887',
+        betaTrend: '+$28,400 / mes',
+        peakMonth2027: 'Noviembre 2027',
+        budgets: { '2026-10-01': 3216233.00, '2026-11-01': 3856028.00, '2026-12-01': 3368300.00 },
+        series: buildFullDataSeries(
+          cuemancoRaw,
+          [{ val: 3261200.00, low: 3043000.00, high: 3479000.00 }, { val: 3842100.00, low: 3624000.00, high: 4060000.00 }, { val: 3097400.00, low: 2880000.00, high: 3315000.00 }],
+          [{ val: 3210400.00, low: 2975000.00, high: 3445000.00 }, { val: 3414400.00, low: 3179000.00, high: 3649000.00 }, { val: 3639800.00, low: 3404000.00, high: 3875000.00 }, { val: 3701100.00, low: 3466000.00, high: 3936000.00 }, { val: 4163400.00, low: 3928000.00, high: 4398000.00 }, { val: 3730200.00, low: 3495000.00, high: 3965000.00 }, { val: 3728600.00, low: 3493000.00, high: 3963000.00 }, { val: 3781700.00, low: 3546000.00, high: 4017000.00 }, { val: 3763500.00, low: 3528000.00, high: 3999000.00 }, { val: 3602000.00, low: 3367000.00, high: 3837000.00 }, { val: 4182900.00, low: 3948000.00, high: 4418000.00 }, { val: 3438200.00, low: 3203000.00, high: 3673000.00 }]
+        )
+      },
+      azc: {
+        title: 'Unidad Deportiva Azcapotzalco',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Poniente',
+        r2: '0.925',
+        betaTrend: '+$23,450 / mes',
+        peakMonth2027: 'Noviembre 2027',
+        budgets: { '2026-10-01': 2516249.52, '2026-11-01': 2227100.69, '2026-12-01': 1815034.65 },
+        series: buildFullDataSeries(
+          azcRaw,
+          [{ val: 2528750.00, low: 2344000.00, high: 2713000.00 }, { val: 2572400.00, low: 2388000.00, high: 2757000.00 }, { val: 1885250.00, low: 1700000.00, high: 2070000.00 }],
+          [{ val: 2459800.00, low: 2265000.00, high: 2654000.00 }, { val: 2419200.00, low: 2225000.00, high: 2614000.00 }, { val: 2610600.00, low: 2416000.00, high: 2805000.00 }, { val: 2719800.00, low: 2525000.00, high: 2914000.00 }, { val: 2789300.00, low: 2595000.00, high: 2984000.00 }, { val: 2624900.00, low: 2430000.00, high: 2819000.00 }, { val: 2765900.00, low: 2571000.00, high: 2960000.00 }, { val: 2781000.00, low: 2587000.00, high: 2976000.00 }, { val: 2757400.00, low: 2563000.00, high: 2952000.00 }, { val: 2810150.00, low: 2616000.00, high: 3005000.00 }, { val: 2853800.00, low: 2659000.00, high: 3048000.00 }, { val: 2166650.00, low: 1972000.00, high: 2361000.00 }]
+        )
+      },
+      tlalli: {
+        title: 'Unidad Deportiva Tlalli',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Norte',
+        r2: '0.908',
+        betaTrend: '+$29,500 / mes',
+        peakMonth2027: 'Junio 2027',
+        budgets: { '2026-10-01': 2089538.26, '2026-11-01': 1612704.95, '2026-12-01': 1372340.38 },
+        series: buildFullDataSeries(
+          tlalliRaw,
+          [{ val: 2124800.00, low: 1940000.00, high: 2310000.00 }, { val: 2086500.00, low: 1902000.00, high: 2271000.00 }, { val: 1675200.00, low: 1490000.00, high: 1860000.00 }],
+          [{ val: 2204400.00, low: 2010000.00, high: 2399000.00 }, { val: 1910300.00, low: 1716000.00, high: 2105000.00 }, { val: 2464800.00, low: 2270000.00, high: 2659000.00 }, { val: 2439300.00, low: 2245000.00, high: 2634000.00 }, { val: 2643500.00, low: 2449000.00, high: 2838000.00 }, { val: 2768100.00, low: 2574000.00, high: 2963000.00 }, { val: 2632700.00, low: 2438000.00, high: 2827000.00 }, { val: 2707300.00, low: 2513000.00, high: 2902000.00 }, { val: 2355000.00, low: 2161000.00, high: 2550000.00 }, { val: 2478800.00, low: 2284000.00, high: 2673000.00 }, { val: 2440500.00, low: 2246000.00, high: 2635000.00 }, { val: 2029200.00, low: 1835000.00, high: 2224000.00 }]
+        )
+      },
+      coacalco: {
+        title: 'Unidad Deportiva Coacalco',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Metropolitana',
+        r2: '0.865',
+        betaTrend: '+$14,280 / mes',
+        peakMonth2027: 'Mayo 2027',
+        budgets: { '2026-10-01': 1064011.00, '2026-11-01': 1043332.00, '2026-12-01': 914759.00 },
+        series: buildFullDataSeries(
+          coacalcoRaw,
+          [{ val: 1148620.00, low: 1013000.00, high: 1284000.00 }, { val: 1012430.00, low: 877000.00, high: 1148000.00 }, { val: 896320.00, low: 760000.00, high: 1032000.00 }],
+          [{ val: 1213400.00, low: 1069000.00, high: 1358000.00 }, { val: 1155300.00, low: 1011000.00, high: 1300000.00 }, { val: 1305700.00, low: 1161000.00, high: 1450000.00 }, { val: 1579900.00, low: 1435000.00, high: 1724000.00 }, { val: 1806300.00, low: 1662000.00, high: 1951000.00 }, { val: 1470500.00, low: 1326000.00, high: 1615000.00 }, { val: 1330200.00, low: 1186000.00, high: 1475000.00 }, { val: 1323300.00, low: 1179000.00, high: 1468000.00 }, { val: 1544600.00, low: 1400000.00, high: 1689000.00 }, { val: 1319980.00, low: 1175000.00, high: 1464000.00 }, { val: 1183790.00, low: 1039000.00, high: 1328000.00 }, { val: 1067680.00, low: 923000.00, high: 1212000.00 }]
+        )
+      },
+      com: {
+        title: 'Centro Olímpico Mexicano (COM)',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Centro de Alto Rendimiento',
+        r2: '0.880',
+        betaTrend: '+$16,500 / mes',
+        peakMonth2027: 'Septiembre 2027',
+        budgets: { '2026-10-01': 1371463.47, '2026-11-01': 1488621.42, '2026-12-01': 1265328.21 },
+        series: buildFullDataSeries(
+          comRaw,
+          [{ val: 1436200.00, low: 1320000.00, high: 1553000.00 }, { val: 1515800.00, low: 1399000.00, high: 1632000.00 }, { val: 1308450.00, low: 1192000.00, high: 1425000.00 }],
+          [{ val: 1429900.00, low: 1305000.00, high: 1554000.00 }, { val: 1524700.00, low: 1400000.00, high: 1649000.00 }, { val: 1667800.00, low: 1543000.00, high: 1792000.00 }, { val: 1633400.00, low: 1509000.00, high: 1758000.00 }, { val: 1824900.00, low: 1700000.00, high: 1949000.00 }, { val: 1597800.00, low: 1473000.00, high: 1722000.00 }, { val: 1532900.00, low: 1408000.00, high: 1657000.00 }, { val: 1645800.00, low: 1521000.00, high: 1770000.00 }, { val: 1868900.00, low: 1744000.00, high: 1993000.00 }, { val: 1634200.00, low: 1510000.00, high: 1759000.00 }, { val: 1713800.00, low: 1589000.00, high: 1838000.00 }, { val: 1506450.00, low: 1382000.00, high: 1631000.00 }]
+        )
+      },
+      izcalli: {
+        title: 'Unidad Deportiva Izcalli',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Norponiente',
+        r2: '0.892',
+        betaTrend: '+$13,200 / mes',
+        peakMonth2027: 'Mayo 2027',
+        budgets: { '2026-10-01': 1510306.15, '2026-11-01': 1456640.32, '2026-12-01': 864200.00 },
+        series: buildFullDataSeries(
+          izcalliRaw,
+          [{ val: 1505800.00, low: 1361000.00, high: 1650000.00 }, { val: 1498600.00, low: 1354000.00, high: 1643000.00 }, { val: 1248350.00, low: 1104000.00, high: 1393000.00 }],
+          [{ val: 1483200.00, low: 1334000.00, high: 1632000.00 }, { val: 1532300.00, low: 1383000.00, high: 1681000.00 }, { val: 1688000.00, low: 1539000.00, high: 1837000.00 }, { val: 1668500.00, low: 1519000.00, high: 1818000.00 }, { val: 1955600.00, low: 1806000.00, high: 2105000.00 }, { val: 1777800.00, low: 1628000.00, high: 1927000.00 }, { val: 1659200.00, low: 1510000.00, high: 1809000.00 }, { val: 1715100.00, low: 1566000.00, high: 1864000.00 }, { val: 1813800.00, low: 1664000.00, high: 1963000.00 }, { val: 1664200.00, low: 1515000.00, high: 1813000.00 }, { val: 1657000.00, low: 1508000.00, high: 1806000.00 }, { val: 1406750.00, low: 1257000.00, high: 1556000.00 }]
+        )
+      },
+      lasalle: {
+        title: 'Unidad Deportiva La Salle',
+        subtitle: '33 meses reales (Ene 24 - Sep 26) • Pronóstico: Oct 26 a Dic 27',
+        tag: 'Zona Centro-Sur',
+        r2: '0.895',
+        betaTrend: '+$17,450 / mes',
+        peakMonth2027: 'Noviembre 2027',
+        budgets: { '2026-10-01': 1534400.00, '2026-11-01': 1533150.00, '2026-12-01': 1474970.00 },
+        series: buildFullDataSeries(
+          lasalleRaw,
+          [{ val: 1620450.00, low: 1493000.00, high: 1747000.00 }, { val: 1652100.00, low: 1525000.00, high: 1779000.00 }, { val: 1542600.00, low: 1415000.00, high: 1670000.00 }],
+          [{ val: 1609400.00, low: 1478000.00, high: 1740000.00 }, { val: 1541200.00, low: 1410000.00, high: 1672000.00 }, { val: 1656600.00, low: 1525000.00, high: 1788000.00 }, { val: 1632400.00, low: 1501000.00, high: 1763000.00 }, { val: 1698000.00, low: 1567000.00, high: 1829000.00 }, { val: 1711000.00, low: 1580000.00, high: 1842000.00 }, { val: 1741400.00, low: 1610000.00, high: 1872000.00 }, { val: 1721400.00, low: 1590000.00, high: 1852000.00 }, { val: 1718500.00, low: 1587000.00, high: 1849000.00 }, { val: 1829850.00, low: 1699000.00, high: 1961000.00 }, { val: 1861500.00, low: 1730000.00, high: 1992000.00 }, { val: 1752000.00, low: 1621000.00, high: 1883000.00 }]
+        )
+      }
+    };
+
+    // Build Consolidated Global Network Data (Vectorized 48 Months)
+    function buildGlobalConsolidation() {
+      const keys = ['coapa', 'cuemanco', 'azc', 'tlalli', 'coacalco', 'com', 'izcalli', 'lasalle'];
+      const firstSeries = facilityDataStore['coapa'].series;
+      const globalSeries = [];
+
+      for (let i = 0; i < firstSeries.length; i++) {
+        const template = firstSeries[i];
+        let totalVal = 0;
+        let totalBaseVal = 0;
+        let totalCiLow = 0;
+        let totalCiHigh = 0;
+
+        keys.forEach(k => {
+          const item = facilityDataStore[k].series[i];
+          totalVal += item.value;
+          totalBaseVal += (item.baseValue || item.value);
+          if (item.ciLower) totalCiLow += item.ciLower;
+          if (item.ciUpper) totalCiHigh += item.ciUpper;
+        });
+
+        globalSeries.push({
+          date: template.date,
+          label: template.label,
+          year: template.year,
+          month: template.month,
+          monthNum: template.monthNum,
+          value: totalVal,
+          baseValue: totalBaseVal,
+          ciLower: totalCiLow > 0 ? totalCiLow : null,
+          ciUpper: totalCiHigh > 0 ? totalCiHigh : null,
+          type: template.type
+        });
+      }
+
+      // Consolidate budgets for Q4 2026
+      const globalBudgets = {
+        '2026-10-01': 0,
+        '2026-11-01': 0,
+        '2026-12-01': 0
+      };
+      keys.forEach(k => {
+        const b = facilityDataStore[k].budgets;
+        if (b) {
+          globalBudgets['2026-10-01'] += b['2026-10-01'] || 0;
+          globalBudgets['2026-11-01'] += b['2026-11-01'] || 0;
+          globalBudgets['2026-12-01'] += b['2026-12-01'] || 0;
+        }
+      });
+
+      facilityDataStore['global'] = {
+        title: 'Red Deportiva (Consolidado Global)',
+        subtitle: 'Consolidación macro de las 8 Unidades Deportivas • 33 meses reales (Ene 24 - Sep 26) y 15 meses de proyección econométrica (Oct 26 - Dic 27)',
+        tag: 'Consolidado 8 Unidades',
+        r2: '0.941',
+        betaTrend: '+$167,400 / mes',
+        peakMonth2027: 'Mayo 2027',
+        budgets: globalBudgets,
+        series: globalSeries
+      };
+    }
+
+    buildGlobalConsolidation();
+
+    function formatCurrency(num) {
+      if (num === null || num === undefined) return '$0.00';
+      if (Math.abs(num) >= 1000000) {
+        return '$' + (num / 1000000).toFixed(2) + 'M';
+      }
+      return '$' + num.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatCurrencyDetailed(num) {
+      if (num === null || num === undefined) return '$0.00';
+      return '$' + num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMessage');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('tabsBar');
+      container.innerHTML = '';
+
+      facilities.forEach(fac => {
+        const btn = document.createElement('button');
+        const isActive = fac.id === activeFacilityId;
+
+        btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center space-x-1.5 ${
+          isActive 
+            ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-bold' 
+            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+        }`;
+        btn.innerHTML = `<span>${fac.name}</span>`;
+
+        btn.addEventListener('click', () => {
+          if (activeFacilityId !== fac.id) {
+            activeFacilityId = fac.id;
+            renderTabs();
+            updateFacilityView();
+          }
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function updateFacilityView() {
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+
+      document.getElementById('activeFacilityTitle').textContent = unit.title;
+      document.getElementById('activeFacilitySubtitle').textContent = unit.subtitle;
+      document.getElementById('activeFacilityTag').textContent = unit.tag || 'Unidad Operativa';
+      document.getElementById('statR2').textContent = unit.r2;
+      document.getElementById('statBeta').textContent = unit.betaTrend;
+
+      updateCalculations();
+      renderSeasonalityChart();
+    }
+
+    function updateCalculations() {
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+      const series = unit.series;
+
+      // Apply multiplier on projected values
+      series.forEach(item => {
+        if (item.type === 'proj') {
+          item.value = item.baseValue * (1 + scenarioMultiplier);
+        }
+      });
+
+      // Annual Totals
+      const total2024 = series.filter(d => d.year === 2024).reduce((acc, c) => acc + c.value, 0);
+      const total2025 = series.filter(d => d.year === 2025).reduce((acc, c) => acc + c.value, 0);
+      const actual2026 = series.filter(d => d.year === 2026 && d.type === 'real').reduce((acc, c) => acc + c.value, 0);
+      const proj2026 = series.filter(d => d.year === 2026 && d.type === 'proj').reduce((acc, c) => acc + c.value, 0);
+      const total2026 = actual2026 + proj2026;
+      const total2027 = series.filter(d => d.year === 2027).reduce((acc, c) => acc + c.value, 0);
+
+      // YoY Growths
+      const growth25vs24 = ((total2025 - total2024) / total2024) * 100;
+      const growth26vs25 = ((total2026 - total2025) / total2025) * 100;
+      const growth27vs26 = ((total2027 - total2026) / total2026) * 100;
+
+      // Update KPI Cards
+      document.getElementById('kpiAnnual2026').textContent = formatCurrency(total2026);
+      document.getElementById('kpiGrowth2026Text').textContent = `${growth26vs25 >= 0 ? '+' : ''}${growth26vs25.toFixed(2)}% vs 2025`;
+
+      document.getElementById('kpiAnnual2027').textContent = formatCurrency(total2027);
+      document.getElementById('kpiGrowth2027Text').textContent = `${growth27vs26 >= 0 ? '+' : ''}${growth27vs26.toFixed(2)}% vs 2026 Est.`;
+
+      document.getElementById('kpiAvgMonthly2027').textContent = formatCurrency(total2027 / 12);
+      document.getElementById('kpiAvgComparison').textContent = `vs ${formatCurrency(total2026 / 12)} en '26 | ${formatCurrency(total2025 / 12)} en '25`;
+
+      // 2027 Peak
+      const items2027 = series.filter(d => d.year === 2027);
+      let max2027Val = -Infinity;
+      let peak2027Month = 'Mayo 2027';
+      items2027.forEach(item => {
+        if (item.value > max2027Val) {
+          max2027Val = item.value;
+          peak2027Month = `${item.month} 2027`;
+        }
+      });
+      document.getElementById('kpiPeak2027Amount').textContent = formatCurrency(max2027Val);
+      document.getElementById('kpiPeak2027Text').textContent = peak2027Month;
+
+      // 4 Annual Cards
+      document.getElementById('cardTotal2024').textContent = formatCurrencyDetailed(total2024);
+      document.getElementById('cardAvg2024').textContent = `Promedio: ${formatCurrency(total2024 / 12)}/mes`;
+
+      document.getElementById('cardTotal2025').textContent = formatCurrencyDetailed(total2025);
+      document.getElementById('cardGrowth2025').textContent = `${growth25vs24 >= 0 ? '+' : ''}${growth25vs24.toFixed(1)}% vs '24`;
+      document.getElementById('cardAvg2025').textContent = `Promedio: ${formatCurrency(total2025 / 12)}/mes`;
+
+      document.getElementById('cardTotal2026').textContent = formatCurrencyDetailed(total2026);
+      document.getElementById('cardGrowth2026').textContent = `${growth26vs25 >= 0 ? '+' : ''}${growth26vs25.toFixed(1)}% vs '25`;
+
+      document.getElementById('cardTotal2027').textContent = formatCurrencyDetailed(total2027);
+      document.getElementById('cardGrowth2027').textContent = `${growth27vs26 >= 0 ? '+' : ''}${growth27vs26.toFixed(1)}% vs '26`;
+      document.getElementById('cardAvg2027').textContent = `Promedio: ${formatCurrency(total2027 / 12)}/mes`;
+
+      renderForecastBadges();
+      renderTable();
+      renderMainChart();
+    }
+
+    function renderForecastBadges() {
+      const badgesContainer = document.getElementById('forecastBadgesContainer');
+      badgesContainer.innerHTML = '';
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+
+      const series = unit.series;
+      let targetItems = [];
+
+      if (currentBadgeHorizon === 'q4') {
+        targetItems = series.filter(d => d.year === 2026 && d.type === 'proj');
+      } else {
+        targetItems = series.filter(d => d.year === 2027);
+      }
+
+      targetItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950 border border-slate-800 rounded-xl p-2.5 hover:border-slate-700 transition';
+
+        let budgetHtml = '';
+        if (unit.budgets && unit.budgets[item.date]) {
+          const bVal = unit.budgets[item.date];
+          const diff = item.value - bVal;
+          const diffPct = (diff / bVal) * 100;
+          const isAbove = diff >= 0;
+          budgetHtml = `
+            <div class="mt-1 pt-1 border-t border-slate-800/80 flex items-center justify-between text-[9px]">
+              <span class="text-purple-300 font-semibold">Ppto: ${formatCurrency(bVal)}</span>
+              <span class="font-mono font-bold ${isAbove ? 'text-emerald-400' : 'text-rose-400'}">
+                ${isAbove ? '+' : ''}${diffPct.toFixed(1)}%
+              </span>
+            </div>
+          `;
+        }
+
+        const lowVal = item.ciLower ? formatCurrency(item.ciLower * (1 + scenarioMultiplier)) : '-';
+        const highVal = item.ciUpper ? formatCurrency(item.ciUpper * (1 + scenarioMultiplier)) : '-';
+
+        card.innerHTML = `
+          <div class="text-[10px] text-slate-400 font-medium">${monthShort[item.monthNum - 1]} ${item.year}</div>
+          <div class="text-sm font-black text-emerald-400 font-mono mt-0.5">${formatCurrency(item.value)}</div>
+          <div class="text-[9px] text-slate-400 font-mono mt-0.5 truncate">
+            IC: ${lowVal} - ${highVal}
+          </div>
+          ${budgetHtml}
+        `;
+        badgesContainer.appendChild(card);
+      });
+    }
+
+    function renderMainChart() {
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (mainChartInstance) mainChartInstance.destroy();
+
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+      const series = unit.series;
+
+      if (currentViewMode === 'timeline') {
+        const labels = series.map(d => d.label);
+        const historicData = series.map(d => d.type === 'real' ? d.value : null);
+        const projectionData = series.map(d => d.type === 'proj' ? d.value : null);
+
+        // Bridge projection curve with last real point (Sep 2026)
+        const lastRealIdx = series.map(d => d.type).lastIndexOf('real');
+        if (lastRealIdx !== -1) {
+          projectionData[lastRealIdx] = series[lastRealIdx].value;
+        }
+
+        // Budget data overlay
+        const budgetData = series.map((d, idx) => {
+          if (unit.budgets && unit.budgets[d.date]) {
+            return unit.budgets[d.date];
+          }
+          if (unit.budgets && idx === lastRealIdx) {
+            return d.value;
+          }
+          return null;
+        });
+
+        const ciLowerData = series.map(d => d.type === 'proj' && d.ciLower ? d.ciLower * (1 + scenarioMultiplier) : null);
+        const ciUpperData = series.map(d => d.type === 'proj' && d.ciUpper ? d.ciUpper * (1 + scenarioMultiplier) : null);
+
+        const datasets = [
+          {
+            label: 'Ingreso Real',
+            data: historicData,
+            borderColor: '#3b82f6',
+            backgroundColor: '#3b82f6',
+            borderWidth: 2.5,
+            pointRadius: 2.5,
+            pointHoverRadius: 5,
+            tension: 0.15
+          },
+          {
+            label: 'Proyección Modelo',
+            data: projectionData,
+            borderColor: '#10b981',
+            backgroundColor: '#10b981',
+            borderWidth: 2.8,
+            borderDash: [4, 4],
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#10b981',
+            tension: 0.15
+          }
+        ];
+
+        if (unit.budgets) {
+          datasets.push({
+            label: 'Presupuesto Meta',
+            data: budgetData,
+            borderColor: '#a855f7',
+            backgroundColor: '#a855f7',
+            borderWidth: 2.2,
+            borderDash: [3, 3],
+            pointStyle: 'rectRot',
+            pointRadius: 5.5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#c084fc',
+            tension: 0.15
+          });
+        }
+
+        if (ciUpperData[lastRealIdx + 1] !== null) {
+          datasets.push(
+            {
+              label: 'Límite Superior IC 95%',
+              data: ciUpperData,
+              borderColor: 'rgba(16, 185, 129, 0.25)',
+              borderWidth: 1,
+              pointRadius: 0,
+              fill: '+1',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              tension: 0.2
+            },
+            {
+              label: 'Límite Inferior IC 95%',
+              data: ciLowerData,
+              borderColor: 'rgba(16, 185, 129, 0.25)',
+              borderWidth: 1,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.2
+            }
+          );
+        }
+
+        mainChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: { labels: labels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                titleColor: '#f8fafc',
+                bodyColor: '#cbd5e1',
+                borderColor: '#334155',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    if (context.parsed.y !== null) {
+                      return `${context.dataset.label}: ${formatCurrencyDetailed(context.parsed.y)}`;
+                    }
+                    return null;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  color: '#94a3b8',
+                  callback: function(val) { return '$' + (val / 1000000).toFixed(1) + 'M'; },
+                  font: { size: 10 }
+                },
+                grid: { color: 'rgba(51, 65, 85, 0.4)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 55, autoSkip: true, maxTicksLimit: 24 },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+      } else {
+        // Multi-Year Overlay (2024 to 2027)
+        const d2024 = series.filter(d => d.year === 2024).map(d => d.value);
+        const d2025 = series.filter(d => d.year === 2025).map(d => d.value);
+        const d2026 = series.filter(d => d.year === 2026).map(d => d.value);
+        const d2027 = series.filter(d => d.year === 2027).map(d => d.value);
+
+        const compDatasets = [
+          {
+            label: 'Año 2024 (Real)',
+            data: d2024,
+            borderColor: '#64748b',
+            backgroundColor: '#64748b',
+            borderWidth: 2,
+            pointRadius: 3,
+            tension: 0.2
+          },
+          {
+            label: 'Año 2025 (Real)',
+            data: '#3b82f6',
+            borderColor: '#3b82f6',
+            backgroundColor: '#3b82f6',
+            borderWidth: 2.2,
+            pointRadius: 3,
+            tension: 0.2
+          },
+          {
+            label: 'Año 2026 (Real + Proy)',
+            data: d2026,
+            borderColor: '#06b6d4',
+            backgroundColor: '#06b6d4',
+            borderWidth: 2.6,
+            pointRadius: 3.5,
+            tension: 0.2
+          },
+          {
+            label: 'Año 2027 (Proyectado)',
+            data: d2027,
+            borderColor: '#10b981',
+            backgroundColor: '#10b981',
+            borderWidth: 3,
+            borderDash: [4, 4],
+            pointRadius: 4.5,
+            pointBackgroundColor: '#10b981',
+            tension: 0.2
+          }
+        ];
+
+        mainChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: { labels: monthShort, datasets: compDatasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+              legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 }, color: '#cbd5e1' } },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                titleColor: '#f8fafc',
+                bodyColor: '#cbd5e1',
+                borderColor: '#334155',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return `${context.dataset.label}: ${formatCurrencyDetailed(context.parsed.y)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  color: '#94a3b8',
+                  callback: function(val) { return '$' + (val / 1000000).toFixed(1) + 'M'; },
+                  font: { size: 10 }
+                },
+                grid: { color: 'rgba(51, 65, 85, 0.4)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8', font: { size: 10 } },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function renderSeasonalityChart() {
+      const ctx = document.getElementById('seasonalityChart').getContext('2d');
+      if (seasonalityChartInstance) seasonalityChartInstance.destroy();
+
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+
+      // In Global view, show Unit Contribution Doughnut or Monthly Distribution
+      if (activeFacilityId === 'global') {
+        document.getElementById('seasonalChartTitle').textContent = 'Participación por Unidad (2027 Proy)';
+        document.getElementById('seasonalChartSubtitle').textContent = 'Aportación al ingreso total proyectado de $242.68M';
+
+        const unitKeys = ['coapa', 'cuemanco', 'azc', 'tlalli', 'coacalco', 'com', 'izcalli', 'lasalle'];
+        const unitLabels = unitKeys.map(k => facilityDataStore[k].title.replace('Unidad Deportiva ', '').replace('Centro Olímpico Mexicano ', ''));
+        const unitValues = unitKeys.map(k => {
+          return facilityDataStore[k].series.filter(d => d.year === 2027).reduce((acc, c) => acc + c.value, 0);
+        });
+
+        const palette = ['#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f59e0b', '#14b8a6'];
+
+        seasonalityChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: unitLabels,
+            datasets: [{
+              data: unitValues,
+              backgroundColor: palette,
+              borderWidth: 2,
+              borderColor: '#0f172a'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 }, color: '#94a3b8' } },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const total = unitValues.reduce((a, b) => a + b, 0);
+                    const pct = ((context.parsed / total) * 100).toFixed(1);
+                    return ` ${context.label}: ${formatCurrency(context.parsed)} (${pct}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
+        document.getElementById('seasonalChartTitle').textContent = 'Patrón Estacional Mensual';
+        document.getElementById('seasonalChartSubtitle').textContent = 'Promedio histórico y meses de máxima recaudación';
+
+        const monthlyAverages = [];
+        for (let m = 1; m <= 12; m++) {
+          const matches = unit.series.filter(d => d.monthNum === m && d.type === 'real');
+          const sum = matches.reduce((acc, c) => acc + c.value, 0);
+          monthlyAverages.push(matches.length > 0 ? (sum / matches.length) : 0);
+        }
+
+        const maxVal = Math.max(...monthlyAverages);
+
+        seasonalityChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: monthShort,
+            datasets: [{
+              label: 'Promedio Histórico Real',
+              data: monthlyAverages,
+              backgroundColor: monthlyAverages.map(val => val === maxVal ? '#10b981' : '#334155'),
+              borderRadius: 6,
+              hoverBackgroundColor: '#059669'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `Promedio: ${formatCurrencyDetailed(context.parsed.y)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  color: '#94a3b8',
+                  callback: function(val) { return '$' + (val / 1000000).toFixed(1) + 'M'; },
+                  font: { size: 9 }
+                },
+                grid: { color: 'rgba(51, 65, 85, 0.4)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8', font: { size: 9 } },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '';
+
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+      const series = unit.series;
+
+      let filtered = series;
+      if (currentFilter === '2024') filtered = series.filter(d => d.year === 2024);
+      else if (currentFilter === '2025') filtered = series.filter(d => d.year === 2025);
+      else if (currentFilter === '2026') filtered = series.filter(d => d.year === 2026);
+      else if (currentFilter === '2027') filtered = series.filter(d => d.year === 2027);
+      else if (currentFilter === 'proj') filtered = series.filter(d => d.type === 'proj');
+
+      filtered.forEach(row => {
+        let yoyBadge = '-';
+        if (row.year > 2024) {
+          const prevYearMatch = series.find(d => d.year === (row.year - 1) && d.monthNum === row.monthNum);
+          if (prevYearMatch) {
+            const pct = ((row.value - prevYearMatch.value) / prevYearMatch.value) * 100;
+            const isPos = pct >= 0;
+            yoyBadge = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${isPos ? 'text-emerald-400 bg-emerald-500/10' : 'text-rose-400 bg-rose-500/10'}">
+              ${isPos ? '↑ +' : '↓ '}${pct.toFixed(1)}%
+            </span>`;
+          }
+        }
+
+        let typeBadge = '';
+        if (row.type === 'proj') {
+          typeBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${row.year === 2027 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-cyan-500/20 text-cyan-300'}">Pronóstico</span>`;
+          if (unit.budgets && unit.budgets[row.date]) {
+            typeBadge += `<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-purple-500/20 text-purple-300">Ppto: ${formatCurrency(unit.budgets[row.date])}</span>`;
+          }
+        } else {
+          typeBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-300">Real</span>`;
+        }
+
+        const isProj = row.type === 'proj';
+        const ciRange = (isProj && row.ciLower)
+          ? `<span class="text-slate-400">${formatCurrency(row.ciLower * (1 + scenarioMultiplier))} - ${formatCurrency(row.ciUpper * (1 + scenarioMultiplier))}</span>`
+          : `<span class="text-slate-600">—</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = isProj ? (row.year === 2027 ? 'bg-emerald-950/20 hover:bg-emerald-950/40' : 'bg-cyan-950/20 hover:bg-cyan-950/40') : 'hover:bg-slate-800/40';
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 font-mono font-bold text-slate-200">${row.label}</td>
+          <td class="py-2.5 px-4 text-slate-400">${row.year}</td>
+          <td class="py-2.5 px-4 text-slate-300">${row.month}</td>
+          <td class="py-2.5 px-4 text-right font-mono font-bold ${isProj ? 'text-emerald-400' : 'text-white'}">
+            ${formatCurrencyDetailed(row.value)}
+          </td>
+          <td class="py-2.5 px-4 text-center">${typeBadge}</td>
+          <td class="py-2.5 px-4 text-right">${yoyBadge}</td>
+          <td class="py-2.5 px-4 text-right">${ciRange}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Slider Sensitivity
+    const slider = document.getElementById('scenarioSlider');
+    const sliderBadge = document.getElementById('scenarioValueBadge');
+    slider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      scenarioMultiplier = val / 100.0;
+      sliderBadge.textContent = `${val >= 0 ? '+' : ''}${val}% ${val === 0 ? '(Base)' : ''}`;
+      sliderBadge.className = `text-sm font-bold font-mono px-2.5 py-1 rounded bg-slate-900 border border-slate-700 ${
+        val > 0 ? 'text-emerald-400' : val < 0 ? 'text-rose-400' : 'text-slate-200'
+      }`;
+      updateCalculations();
+    });
+
+    document.getElementById('btnResetScenario').addEventListener('click', () => {
+      slider.value = 0;
+      scenarioMultiplier = 0.0;
+      sliderBadge.textContent = '0% (Base)';
+      sliderBadge.className = 'text-sm font-bold font-mono px-2.5 py-1 rounded bg-slate-900 text-emerald-400 border border-slate-700';
+      updateCalculations();
+      showToast('Escenario restablecido a pronóstico base');
+    });
+
+    // Badge Horizon Toggle (Q4 vs 2027)
+    const btnBadgeQ4 = document.getElementById('btnBadgeQ4');
+    const btnBadge2027 = document.getElementById('btnBadge2027');
+    btnBadgeQ4.addEventListener('click', () => {
+      currentBadgeHorizon = 'q4';
+      btnBadgeQ4.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition';
+      btnBadge2027.className = 'px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition';
+      renderForecastBadges();
+    });
+    btnBadge2027.addEventListener('click', () => {
+      currentBadgeHorizon = '2027';
+      btnBadge2027.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition';
+      btnBadgeQ4.className = 'px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition';
+      renderForecastBadges();
+    });
+
+    // Main Chart view modes
+    const btnTimeline = document.getElementById('btnViewTimeline');
+    const btnComp = document.getElementById('btnViewComparison');
+    btnTimeline.addEventListener('click', () => {
+      currentViewMode = 'timeline';
+      btnTimeline.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition';
+      btnComp.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition';
+      renderMainChart();
+    });
+    btnComp.addEventListener('click', () => {
+      currentViewMode = 'comparison';
+      btnComp.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition';
+      btnTimeline.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition';
+      renderMainChart();
+    });
+
+    // Table Filters
+    document.querySelectorAll('.table-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.table-filter-btn').forEach(b => {
+          b.className = 'table-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition';
+        });
+        btn.className = 'table-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition';
+        currentFilter = btn.getAttribute('data-filter');
+        renderTable();
+      });
+    });
+
+    // CSV Export
+    document.getElementById('btnExportCSV').addEventListener('click', () => {
+      const unit = facilityDataStore[activeFacilityId];
+      if (!unit) return;
+
+      let csv = 'Periodo,Anio,Mes,Ingreso_MXN,Tipo,IC_Inferior,IC_Superior\n';
+      unit.series.forEach(r => {
+        const val = r.value.toFixed(2);
+        const low = r.ciLower ? (r.ciLower * (1 + scenarioMultiplier)).toFixed(2) : '';
+        const high = r.ciUpper ? (r.ciUpper * (1 + scenarioMultiplier)).toFixed(2) : '';
+        csv += `"${r.label}",${r.year},"${r.month}",${val},"${r.type}","${low}","${high}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `reporte_ingresos_${activeFacilityId}_2024_2027.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Archivo CSV exportado exitosamente (${unit.title})`);
+    });
+
+    // Modal Events
+    const modal = document.getElementById('methodologyModal');
+    document.getElementById('btnDocModal').addEventListener('click', () => modal.classList.remove('hidden'));
+    document.getElementById('btnCloseModal').addEventListener('click', () => modal.classList.add('hidden'));
+    document.getElementById('btnCloseModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
+
+    // Print Report
+    document.getElementById('btnPrintReport').addEventListener('click', () => window.print());
+
+    // Initial Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTabs();
+      updateFacilityView();
+    });
+  </script>
+</body>
+</html>
