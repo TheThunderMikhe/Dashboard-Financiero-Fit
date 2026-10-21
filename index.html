@@ -111,6 +111,17 @@
         </div>
       </div>
 
+      <!-- Metric switcher: ingresos is the default and keeps the current view -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pt-2 pb-1 border-t border-slate-200">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 shrink-0">Ver</span>
+        <div id="metricSwitcher" class="inline-flex flex-wrap rounded-xl bg-slate-100 p-1 gap-1" role="group" aria-label="Tipo de dato">
+          <button type="button" class="metric-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm" data-metric="ingresos" aria-pressed="true">Ingresos</button>
+          <button type="button" class="metric-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900" data-metric="gasto" aria-pressed="false">Gasto</button>
+          <button type="button" class="metric-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900" data-metric="inversion" aria-pressed="false">Inversión</button>
+          <button type="button" class="metric-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900" data-metric="utilidad" aria-pressed="false">Utilidad</button>
+        </div>
+      </div>
+
       <!-- Facility Tabs Navigation -->
       <div id="tabsBar" class="flex space-x-1.5 overflow-x-auto pb-2 pt-1 border-t border-slate-200 scrollbar-none">
         <!-- Rendered dynamically by JavaScript -->
@@ -120,6 +131,17 @@
 
   <!-- Main Content Layout -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <div id="exampleBanner" hidden class="hidden rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-950 leading-relaxed">
+      <strong>Datos de ejemplo.</strong> Estas cifras no son reales: sirven para ver cómo se mostrarán gasto, inversión y utilidad. Para usar las suyas, edite <span class="font-mono">data/metricas.js</span> y ponga <span class="font-mono">ejemplo: false</span>.
+    </div>
+
+    <div id="pendingBanner" hidden class="hidden rounded-xl border border-slate-300 bg-white px-4 py-8 text-center shadow-sm">
+      <p class="text-sm font-bold text-slate-900">Datos pendientes</p>
+      <p id="pendingBannerText" class="text-xs text-slate-600 mt-1 max-w-xl mx-auto"></p>
+    </div>
+
+    <div id="metricBody" class="space-y-6">
 
     <!-- Active Entity Header Banner -->
     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -210,7 +232,7 @@
         <div class="mt-3 flex items-baseline">
           <span class="text-2xl sm:text-3xl font-black text-purple-800 font-mono" id="kpiPeak2027Amount">$22.45M</span>
         </div>
-        <div class="mt-2.5 text-xs text-slate-600">
+        <div class="mt-2.5 text-xs text-slate-600" id="kpiPeakCaption">
           Mayor estacionalidad anual registrada
         </div>
         <div class="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-purple-500/5 pointer-events-none"></div>
@@ -226,16 +248,16 @@
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 uppercase tracking-wider">Simulador Ejecutivo</span>
             <h3 class="text-base font-bold text-slate-900">Sensibilidad de Pronóstico (Octubre 2026 – Diciembre 2027)</h3>
           </div>
-          <p class="text-xs text-slate-600 mt-1">
+          <p class="text-xs text-slate-600 mt-1" id="simulatorHelp">
             Modela escenarios de estrés financiero (-15%) o crecimiento acelerado (+15%) sobre todos los meses proyectados.
           </p>
         </div>
 
         <div class="flex items-center space-x-4 bg-slate-50 p-3 rounded-xl border border-slate-200 w-full sm:w-auto">
           <div class="flex items-center space-x-3 w-full sm:w-64">
-            <span class="text-xs font-mono text-rose-700 font-bold">-15%</span>
+            <span id="sliderMinLabel" class="text-xs font-mono text-rose-700 font-bold">-15%</span>
             <input id="scenarioSlider" type="range" min="-15" max="15" value="0" step="1" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-emerald-600">
-            <span class="text-xs font-mono text-emerald-700 font-bold">+15%</span>
+            <span id="sliderMaxLabel" class="text-xs font-mono text-emerald-700 font-bold">+15%</span>
           </div>
           <div class="min-w-[90px] text-right">
             <span id="scenarioValueBadge" class="text-sm font-bold font-mono px-2.5 py-1 rounded bg-white text-emerald-700 border border-slate-300">0% (Base)</span>
@@ -269,7 +291,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
           <div>
             <h3 class="text-base font-bold text-slate-900 tracking-tight" id="mainChartTitle">Evolución Histórica y Proyección de Ingresos (48 Meses)</h3>
-            <p class="text-xs text-slate-600">Valores consolidados en Pesos Mexicanos ($MXN)</p>
+            <p class="text-xs text-slate-600" id="mainChartSubtitle">Valores consolidados en Pesos Mexicanos ($MXN)</p>
           </div>
           <div class="flex items-center space-x-2">
             <button id="btnViewTimeline" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-300 transition">
@@ -288,12 +310,12 @@
         <!-- Chart Legend & Visual Cues -->
         <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-600 pt-3 border-t border-slate-200 mt-2">
           <div class="flex items-center space-x-1.5">
-            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
-            <span>Histórico Real (33 meses)</span>
+            <span id="legendHistoricSwatch" class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+            <span id="legendHistoricLabel">Histórico Real (33 meses)</span>
           </div>
           <div class="flex items-center space-x-1.5">
-            <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
-            <span>Proyección Modelo (15 meses)</span>
+            <span id="legendProjectionSwatch" class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+            <span id="legendProjectionLabel">Proyección Modelo (15 meses)</span>
           </div>
           <div class="flex items-center space-x-1.5" id="legendBudgetIndicator">
             <span class="w-3 h-3 rotate-45 bg-purple-500 inline-block"></span>
@@ -380,8 +402,8 @@
     <div class="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
       <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 class="text-base font-bold text-slate-900 tracking-tight">Desglose Financiero Mensual (2024–2027)</h3>
-          <p class="text-xs text-slate-600">Auditoría completa de 48 meses con variación interanual (YoY) e intervalos de confianza</p>
+          <h3 class="text-base font-bold text-slate-900 tracking-tight" id="tableHeading">Desglose Financiero Mensual (2024–2027)</h3>
+          <p class="text-xs text-slate-600" id="tableSubheading">Auditoría completa de 48 meses con variación interanual (YoY) e intervalos de confianza</p>
         </div>
         
         <!-- Table Filters -->
@@ -402,7 +424,7 @@
               <th class="py-3 px-4">Periodo</th>
               <th class="py-3 px-4">Año</th>
               <th class="py-3 px-4">Mes</th>
-              <th class="py-3 px-4 text-right">Ingreso ($MXN)</th>
+              <th class="py-3 px-4 text-right" id="colAmount">Ingreso ($MXN)</th>
               <th class="py-3 px-4 text-center">Tipo</th>
               <th class="py-3 px-4 text-right">Variación YoY</th>
               <th class="py-3 px-4 text-right">Intervalo Confianza (95%)</th>
@@ -413,6 +435,8 @@
           </tbody>
         </table>
       </div>
+    </div>
+
     </div>
 
   </main>
@@ -460,6 +484,7 @@
     <span id="toastMessage">Operación exitosa</span>
   </div>
 
+  <script src="data/metricas.js"></script>
   <script>
     // Configuration of facilities including Global Network rollup
     const facilities = [
@@ -831,17 +856,402 @@
 
     buildGlobalConsolidation();
 
-    function formatCurrency(num) {
-      if (num === null || num === undefined) return '$0.00';
-      if (Math.abs(num) >= 1000000) {
-        return '$' + (num / 1000000).toFixed(2) + 'M';
+    let activeMetric = 'ingresos';
+    const metricStores = { ingresos: facilityDataStore };
+    const metricStatus = {
+      ingresos: { ejemplo: false, pendiente: false, mensaje: '' }
+    };
+    const UNIT_ORDER = ['coapa', 'cuemanco', 'azc', 'tlalli', 'coacalco', 'com', 'izcalli', 'lasalle'];
+
+    const INGRESOS_COPY = {
+      chartTitle: 'Evolución Histórica y Proyección de Ingresos (48 Meses)',
+      chartSubtitle: 'Valores consolidados en Pesos Mexicanos ($MXN)',
+      column: 'Ingreso ($MXN)',
+      tableHeading: 'Desglose Financiero Mensual (2024–2027)',
+      tableSub: 'Auditoría completa de 48 meses con variación interanual (YoY) e intervalos de confianza',
+      peakCaption: 'Mayor estacionalidad anual registrada',
+      simulator: 'Modela escenarios de estrés financiero (-15%) o crecimiento acelerado (+15%) sobre todos los meses proyectados.',
+      historic: 'Histórico Real (33 meses)',
+      projection: 'Proyección Modelo (15 meses)',
+      insight1: '• <strong>Picos Anuales:</strong> Mayo y Noviembre presentan los máximos históricos de facturación en toda la red.',
+      insight2: '• <strong>Tendencia Estructural:</strong> Crecimiento orgánico sostenido a tasa promedio de +11.6% para 2027.',
+      seasonalUnit: 'Promedio histórico y meses de máxima recaudación',
+      seasonalGlobal: 'Aportación al ingreso total proyectado de $242.68M'
+    };
+
+    function viewUnit() {
+      const store = metricStores[activeMetric];
+      if (!store) return null;
+      return store[activeFacilityId] || null;
+    }
+
+    function exampleGlobalMeta(metricId) {
+      const nombre = metricId === 'gasto' ? 'gasto' : metricId === 'inversion' ? 'inversión' : 'utilidad';
+      return {
+        title: 'Red Deportiva (Consolidado Global)',
+        subtitle: `Datos de ejemplo de ${nombre}. No son cifras reales. Suma ilustrativa de las 8 unidades.`,
+        tag: 'Datos de ejemplo',
+        r2: '—',
+        betaTrend: '—'
+      };
+    }
+
+    function consolidateStore(store, meta) {
+      const firstSeries = store.coapa.series;
+      const globalSeries = [];
+      for (let i = 0; i < firstSeries.length; i++) {
+        const template = firstSeries[i];
+        let totalVal = 0;
+        let totalBaseVal = 0;
+        let totalCiLow = 0;
+        let totalCiHigh = 0;
+        UNIT_ORDER.forEach(k => {
+          const item = store[k].series[i];
+          totalVal += item.value;
+          totalBaseVal += (item.baseValue != null ? item.baseValue : item.value);
+          if (item.ciLower != null) totalCiLow += item.ciLower;
+          if (item.ciUpper != null) totalCiHigh += item.ciUpper;
+        });
+        globalSeries.push({
+          date: template.date,
+          label: template.label,
+          year: template.year,
+          month: template.month,
+          monthNum: template.monthNum,
+          value: totalVal,
+          baseValue: totalBaseVal,
+          ciLower: totalCiLow !== 0 ? totalCiLow : null,
+          ciUpper: totalCiHigh !== 0 ? totalCiHigh : null,
+          type: template.type
+        });
       }
-      return '$' + num.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      const globalBudgets = { '2026-10-01': 0, '2026-11-01': 0, '2026-12-01': 0 };
+      let anyBudget = false;
+      UNIT_ORDER.forEach(k => {
+        const b = store[k].budgets;
+        if (b) {
+          anyBudget = true;
+          globalBudgets['2026-10-01'] += b['2026-10-01'] || 0;
+          globalBudgets['2026-11-01'] += b['2026-11-01'] || 0;
+          globalBudgets['2026-12-01'] += b['2026-12-01'] || 0;
+        }
+      });
+      store.global = {
+        title: meta.title,
+        subtitle: meta.subtitle,
+        tag: meta.tag,
+        r2: meta.r2,
+        betaTrend: meta.betaTrend,
+        budgets: anyBudget ? globalBudgets : null,
+        series: globalSeries
+      };
+    }
+
+    function storeFromUnidades(unidades, meta) {
+      const store = {};
+      UNIT_ORDER.forEach(id => {
+        const u = unidades[id];
+        store[id] = {
+          title: u.title || facilityDataStore[id].title,
+          subtitle: u.subtitle,
+          tag: u.tag,
+          r2: u.r2,
+          betaTrend: u.betaTrend,
+          budgets: u.budgets || null,
+          series: buildFullDataSeries(u.real, u.q4, u.y2027)
+        };
+      });
+      consolidateStore(store, meta);
+      return store;
+    }
+
+    function attachExampleUnits(metricId, spec) {
+      const unidades = {};
+      UNIT_ORDER.forEach(id => {
+        const serie = construirSerieEjemplo(spec.bases[id], metricId);
+        unidades[id] = {
+          title: facilityDataStore[id].title,
+          subtitle: 'Datos de ejemplo (no reales) • 33 meses ilustrativos y 15 de proyección',
+          tag: 'Datos de ejemplo',
+          r2: '—',
+          betaTrend: '—',
+          real: serie.real,
+          q4: serie.q4,
+          y2027: serie.y2027,
+          budgets: serie.budgets
+        };
+      });
+      return unidades;
+    }
+
+    function computeUtilidadStore() {
+      const gastoStore = metricStores.gasto;
+      const store = {};
+      UNIT_ORDER.forEach(id => {
+        const ing = facilityDataStore[id];
+        const gas = gastoStore[id];
+        const series = ing.series.map((item, i) => {
+          const other = gas.series[i];
+          const baseIng = item.baseValue != null ? item.baseValue : item.value;
+          const baseGas = other.baseValue != null ? other.baseValue : other.value;
+          const diff = baseIng - baseGas;
+          const next = {
+            date: item.date,
+            label: item.label,
+            year: item.year,
+            month: item.month,
+            monthNum: item.monthNum,
+            value: diff,
+            type: item.type
+          };
+          if (item.type === 'proj') {
+            next.baseValue = diff;
+            if (item.ciLower != null && other.ciLower != null && item.ciUpper != null && other.ciUpper != null) {
+              next.ciLower = item.ciLower - other.ciUpper;
+              next.ciUpper = item.ciUpper - other.ciLower;
+            }
+          }
+          return next;
+        });
+        store[id] = {
+          title: ing.title,
+          subtitle: 'Calculada como ingresos − gasto, mes a mes',
+          tag: ing.tag,
+          r2: '—',
+          betaTrend: '—',
+          budgets: null,
+          series: series
+        };
+      });
+      consolidateStore(store, {
+        title: 'Red Deportiva (Consolidado Global)',
+        subtitle: 'Utilidad calculada como ingresos − gasto en las 8 unidades. No es una serie cargada aparte.',
+        tag: 'Calculada',
+        r2: '—',
+        betaTrend: '—'
+      });
+      return store;
+    }
+
+    function resolveMetric(metricId) {
+      const spec = METRICAS[metricId];
+      const pendiente = (mensaje) => ({ store: null, ejemplo: false, pendiente: true, mensaje: mensaje });
+      if (spec.unidades) {
+        const meta = spec.consolidado || (spec.ejemplo ? exampleGlobalMeta(metricId) : {
+          title: 'Red Deportiva (Consolidado Global)',
+          subtitle: 'Consolidado de las 8 unidades.',
+          tag: 'Consolidado 8 Unidades',
+          r2: '—',
+          betaTrend: '—'
+        });
+        return { store: storeFromUnidades(spec.unidades, meta), ejemplo: !!spec.ejemplo, pendiente: false, mensaje: '' };
+      }
+      if (spec.calcular && metricId === 'utilidad') {
+        const gastoListo = METRICAS.gasto.unidades && !METRICAS.gasto.ejemplo;
+        if (gastoListo) {
+          return { store: computeUtilidadStore(), ejemplo: false, pendiente: false, mensaje: '' };
+        }
+        if (spec.ejemplo && spec.bases) {
+          return {
+            store: storeFromUnidades(attachExampleUnits(metricId, spec), exampleGlobalMeta(metricId)),
+            ejemplo: true,
+            pendiente: false,
+            mensaje: ''
+          };
+        }
+        return pendiente('La utilidad se calculará como ingresos − gasto cuando el gasto deje de ser un ejemplo en data/metricas.js. No se mezclan ingresos reales con un gasto ilustrativo.');
+      }
+      if (spec.ejemplo && spec.bases) {
+        return {
+          store: storeFromUnidades(attachExampleUnits(metricId, spec), exampleGlobalMeta(metricId)),
+          ejemplo: true,
+          pendiente: false,
+          mensaje: ''
+        };
+      }
+      return pendiente('Aún no hay cifras para esta vista. Agregue las ocho unidades en data/metricas.js. El formato está descrito en data/README.md.');
+    }
+
+    function bootMetrics() {
+      ['gasto', 'inversion', 'utilidad'].forEach(id => {
+        const resolved = resolveMetric(id);
+        metricStatus[id] = resolved;
+        if (resolved.store) metricStores[id] = resolved.store;
+      });
+    }
+
+    bootMetrics();
+
+    function metricFavorable() {
+      if (activeMetric === 'ingresos') return 'up';
+      return (METRICAS[activeMetric] && METRICAS[activeMetric].favorable) || 'up';
+    }
+
+    function isExampleView() {
+      return !!(metricStatus[activeMetric] && metricStatus[activeMetric].ejemplo);
+    }
+
+    function timelinePalette() {
+      const ejemplo = isExampleView();
+      if (activeMetric === 'gasto') {
+        return {
+          real: '#e11d48', proj: '#9f1239',
+          ci: 'rgba(225, 29, 72, 0.45)', ciFill: 'rgba(225, 29, 72, 0.14)',
+          realLabel: ejemplo ? 'Gasto de ejemplo' : 'Gasto real',
+          projLabel: ejemplo ? 'Proyección de ejemplo' : 'Proyección'
+        };
+      }
+      if (activeMetric === 'inversion') {
+        return {
+          real: '#4f46e5', proj: '#3730a3',
+          ci: 'rgba(79, 70, 229, 0.45)', ciFill: 'rgba(79, 70, 229, 0.14)',
+          realLabel: ejemplo ? 'Inversión de ejemplo' : 'Inversión real',
+          projLabel: ejemplo ? 'Proyección de ejemplo' : 'Proyección'
+        };
+      }
+      if (activeMetric === 'utilidad') {
+        return {
+          real: '#059669', proj: '#0f766e',
+          ci: 'rgba(5, 150, 105, 0.45)', ciFill: 'rgba(5, 150, 105, 0.16)',
+          realLabel: ejemplo ? 'Utilidad de ejemplo' : 'Utilidad',
+          projLabel: ejemplo ? 'Proyección de ejemplo' : 'Proyección'
+        };
+      }
+      return {
+        real: '#3b82f6', proj: '#10b981',
+        ci: 'rgba(5, 150, 105, 0.45)', ciFill: 'rgba(5, 150, 105, 0.16)',
+        realLabel: 'Ingreso Real', projLabel: 'Proyección Modelo'
+      };
+    }
+
+    function applyMetricChrome() {
+      const example = isExampleView();
+      const nombre = activeMetric === 'ingresos' ? 'Ingresos' : activeMetric === 'gasto' ? 'Gasto' : activeMetric === 'inversion' ? 'Inversión' : 'Utilidad';
+      const exampleBanner = document.getElementById('exampleBanner');
+      exampleBanner.classList.toggle('hidden', !example);
+      exampleBanner.hidden = !example;
+      document.getElementById('mainChartTitle').textContent = activeMetric === 'ingresos'
+        ? INGRESOS_COPY.chartTitle
+        : `Evolución y proyección de ${nombre.toLowerCase()} (48 meses)`;
+      document.getElementById('mainChartSubtitle').textContent = example
+        ? 'Serie de ejemplo en pesos mexicanos ($MXN). No son cifras reales.'
+        : INGRESOS_COPY.chartSubtitle;
+      document.getElementById('colAmount').textContent = activeMetric === 'ingresos' ? INGRESOS_COPY.column : `${nombre} ($MXN)`;
+      document.getElementById('tableHeading').textContent = INGRESOS_COPY.tableHeading;
+      document.getElementById('tableSubheading').textContent = example
+        ? 'Cifras de ejemplo. La variación verde o roja sigue la lectura de esta métrica, no de los ingresos.'
+        : INGRESOS_COPY.tableSub;
+      document.getElementById('kpiPeakCaption').textContent = activeMetric === 'ingresos'
+        ? INGRESOS_COPY.peakCaption
+        : activeMetric === 'gasto'
+          ? 'Mes de mayor gasto en la serie de ejemplo'
+          : activeMetric === 'inversion'
+            ? 'Mes de mayor desembolso en la serie de ejemplo'
+            : example
+              ? 'Mes de mayor utilidad en la serie de ejemplo'
+              : 'Mes de mayor utilidad prevista';
+      document.getElementById('simulatorHelp').textContent = activeMetric === 'ingresos'
+        ? INGRESOS_COPY.simulator
+        : activeMetric === 'gasto'
+          ? 'En gasto, +15% aumenta el pronóstico (desfavorable) y −15% lo reduce (favorable). Solo mueve los meses proyectados.'
+          : activeMetric === 'inversion'
+            ? 'El porcentaje solo mueve los meses proyectados de esta serie. En inversión no se pinta la variación como favorable o desfavorable.'
+            : 'En utilidad, +15% mejora el pronóstico y −15% lo reduce. Solo mueve los meses proyectados.';
+      document.getElementById('legendHistoricLabel').textContent = example ? 'Histórico de ejemplo (33 meses)' : INGRESOS_COPY.historic;
+      document.getElementById('legendProjectionLabel').textContent = example ? 'Proyección de ejemplo (15 meses)' : INGRESOS_COPY.projection;
+      const swatch = {
+        ingresos: ['w-3 h-3 rounded-full bg-blue-500 inline-block', 'w-3 h-3 rounded-full bg-emerald-400 inline-block'],
+        gasto: ['w-3 h-3 rounded-full bg-rose-600 inline-block', 'w-3 h-3 rounded-full bg-rose-800 inline-block'],
+        inversion: ['w-3 h-3 rounded-full bg-indigo-600 inline-block', 'w-3 h-3 rounded-full bg-indigo-800 inline-block'],
+        utilidad: ['w-3 h-3 rounded-full bg-emerald-600 inline-block', 'w-3 h-3 rounded-full bg-teal-700 inline-block']
+      };
+      document.getElementById('legendHistoricSwatch').className = swatch[activeMetric][0];
+      document.getElementById('legendProjectionSwatch').className = swatch[activeMetric][1];
+      document.getElementById('insightSeasonality1').innerHTML = activeMetric === 'ingresos'
+        ? INGRESOS_COPY.insight1
+        : activeMetric === 'gasto'
+          ? '• <strong>Lectura:</strong> en gasto, una baja se muestra en verde y un alza en rojo. Menor gasto es favorable.'
+          : activeMetric === 'inversion'
+            ? '• <strong>Lectura:</strong> la inversión no se califica. El gris solo indica la variación, sin decir si conviene.'
+            : '• <strong>Lectura:</strong> en utilidad, un alza se muestra en verde y una baja en rojo.';
+      document.getElementById('insightSeasonality2').innerHTML = activeMetric === 'ingresos'
+        ? INGRESOS_COPY.insight2
+        : '• <strong>Origen:</strong> esta vista usa datos de ejemplo redondeados. El procedimiento para sustituirlos está en data/README.md.';
+      paintSliderEnds();
+    }
+
+    function paintSliderEnds() {
+      const min = document.getElementById('sliderMinLabel');
+      const max = document.getElementById('sliderMaxLabel');
+      if (activeMetric === 'gasto') {
+        min.className = 'text-xs font-mono text-emerald-700 font-bold';
+        max.className = 'text-xs font-mono text-rose-700 font-bold';
+      } else if (activeMetric === 'inversion') {
+        min.className = 'text-xs font-mono text-slate-600 font-bold';
+        max.className = 'text-xs font-mono text-slate-600 font-bold';
+      } else {
+        min.className = 'text-xs font-mono text-rose-700 font-bold';
+        max.className = 'text-xs font-mono text-emerald-700 font-bold';
+      }
+    }
+
+    function scenarioValueClass(val, fromInput) {
+      if (activeMetric === 'ingresos') {
+        if (val > 0) return 'text-emerald-700';
+        if (val < 0) return 'text-rose-700';
+        return fromInput ? 'text-slate-800' : 'text-emerald-700';
+      }
+      if (val === 0) return 'text-slate-800';
+      const fav = metricFavorable();
+      if (fav === 'neutral') return 'text-slate-800';
+      const good = fav === 'up' ? val > 0 : val < 0;
+      return good ? 'text-emerald-700' : 'text-rose-700';
+    }
+
+    function variationClasses(delta, kind) {
+      if (activeMetric === 'ingresos') return null;
+      const fav = metricFavorable();
+      let tone = 'neutral';
+      if (fav !== 'neutral' && delta !== 0) tone = (fav === 'up' ? delta > 0 : delta < 0) ? 'good' : 'bad';
+      if (kind === 'kpi') {
+        const color = tone === 'good' ? 'text-emerald-700' : tone === 'bad' ? 'text-rose-700' : 'text-slate-600';
+        return `mt-2.5 flex items-center text-xs font-semibold ${color}`;
+      }
+      if (kind === 'card') {
+        if (tone === 'good') return 'text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold';
+        if (tone === 'bad') return 'text-[10px] px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-mono font-bold';
+        return 'text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono font-bold';
+      }
+      if (tone === 'good') return 'text-emerald-700 bg-emerald-50';
+      if (tone === 'bad') return 'text-rose-700 bg-rose-50';
+      return 'text-slate-700 bg-slate-100';
+    }
+
+    function paintMetricButtons() {
+      document.querySelectorAll('.metric-btn').forEach(btn => {
+        const on = btn.getAttribute('data-metric') === activeMetric;
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.className = on
+          ? 'metric-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm'
+          : 'metric-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900';
+      });
+    }
+
+    function formatCurrency(num) {
+      if (num === null || num === undefined || Number.isNaN(num)) return '$0.00';
+      const sign = num < 0 ? '-' : '';
+      const abs = Math.abs(num);
+      if (abs >= 1000000) {
+        return sign + '$' + (abs / 1000000).toFixed(2) + 'M';
+      }
+      return sign + '$' + abs.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
     function formatCurrencyDetailed(num) {
-      if (num === null || num === undefined) return '$0.00';
-      return '$' + num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (num === null || num === undefined || Number.isNaN(num)) return '$0.00';
+      const sign = num < 0 ? '-' : '';
+      const abs = Math.abs(num);
+      return sign + '$' + abs.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function showToast(msg) {
@@ -884,9 +1294,10 @@
     }
 
     function updateFacilityView() {
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
 
+      applyMetricChrome();
       document.getElementById('activeFacilityTitle').textContent = unit.title;
       document.getElementById('activeFacilitySubtitle').textContent = unit.subtitle;
       document.getElementById('activeFacilityTag').textContent = unit.tag || 'Unidad Operativa';
@@ -898,7 +1309,7 @@
     }
 
     function updateCalculations() {
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
       const series = unit.series;
 
@@ -929,6 +1340,11 @@
       document.getElementById('kpiAnnual2027').textContent = formatCurrency(total2027);
       document.getElementById('kpiGrowth2027Text').textContent = `${growth27vs26 >= 0 ? '+' : ''}${growth27vs26.toFixed(2)}% vs 2026 Est.`;
 
+      const growth2026Class = variationClasses(growth26vs25, 'kpi');
+      const growth2027Class = variationClasses(growth27vs26, 'kpi');
+      document.getElementById('kpiGrowth2026').className = growth2026Class || 'mt-2.5 flex items-center text-xs font-semibold text-emerald-700';
+      document.getElementById('kpiGrowth2027').className = growth2027Class || 'mt-2.5 flex items-center text-xs font-semibold text-emerald-700';
+
       document.getElementById('kpiAvgMonthly2027').textContent = formatCurrency(total2027 / 12);
       document.getElementById('kpiAvgComparison').textContent = `vs ${formatCurrency(total2026 / 12)} en '26 | ${formatCurrency(total2025 / 12)} en '25`;
 
@@ -951,13 +1367,16 @@
 
       document.getElementById('cardTotal2025').textContent = formatCurrencyDetailed(total2025);
       document.getElementById('cardGrowth2025').textContent = `${growth25vs24 >= 0 ? '+' : ''}${growth25vs24.toFixed(1)}% vs '24`;
+      document.getElementById('cardGrowth2025').className = variationClasses(growth25vs24, 'card') || 'text-[10px] px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-bold';
       document.getElementById('cardAvg2025').textContent = `Promedio: ${formatCurrency(total2025 / 12)}/mes`;
 
       document.getElementById('cardTotal2026').textContent = formatCurrencyDetailed(total2026);
       document.getElementById('cardGrowth2026').textContent = `${growth26vs25 >= 0 ? '+' : ''}${growth26vs25.toFixed(1)}% vs '25`;
+      document.getElementById('cardGrowth2026').className = variationClasses(growth26vs25, 'card') || 'text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold';
 
       document.getElementById('cardTotal2027').textContent = formatCurrencyDetailed(total2027);
       document.getElementById('cardGrowth2027').textContent = `${growth27vs26 >= 0 ? '+' : ''}${growth27vs26.toFixed(1)}% vs '26`;
+      document.getElementById('cardGrowth2027').className = variationClasses(growth27vs26, 'card') || 'text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold';
       document.getElementById('cardAvg2027').textContent = `Promedio: ${formatCurrency(total2027 / 12)}/mes`;
 
       renderForecastBadges();
@@ -968,7 +1387,7 @@
     function renderForecastBadges() {
       const badgesContainer = document.getElementById('forecastBadgesContainer');
       badgesContainer.innerHTML = '';
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
 
       const series = unit.series;
@@ -990,10 +1409,13 @@
           const diff = item.value - bVal;
           const diffPct = (diff / bVal) * 100;
           const isAbove = diff >= 0;
+          let budgetTone = isAbove ? 'text-emerald-700' : 'text-rose-700';
+          if (activeMetric === 'gasto') budgetTone = isAbove ? 'text-rose-700' : 'text-emerald-700';
+          if (activeMetric === 'inversion') budgetTone = 'text-slate-700';
           budgetHtml = `
             <div class="mt-1 pt-1 border-t border-slate-200 flex items-center justify-between text-[9px]">
               <span class="text-purple-800 font-semibold">Ppto: ${formatCurrency(bVal)}</span>
-              <span class="font-mono font-bold ${isAbove ? 'text-emerald-700' : 'text-rose-700'}">
+              <span class="font-mono font-bold ${budgetTone}">
                 ${isAbove ? '+' : ''}${diffPct.toFixed(1)}%
               </span>
             </div>
@@ -1003,9 +1425,10 @@
         const lowVal = item.ciLower ? formatCurrency(item.ciLower * (1 + scenarioMultiplier)) : '-';
         const highVal = item.ciUpper ? formatCurrency(item.ciUpper * (1 + scenarioMultiplier)) : '-';
 
+        const amountTone = activeMetric === 'gasto' ? 'text-rose-800' : activeMetric === 'inversion' ? 'text-indigo-800' : 'text-emerald-700';
         card.innerHTML = `
           <div class="text-[10px] text-slate-600 font-medium">${monthShort[item.monthNum - 1]} ${item.year}</div>
-          <div class="text-sm font-black text-emerald-700 font-mono mt-0.5">${formatCurrency(item.value)}</div>
+          <div class="text-sm font-black ${amountTone} font-mono mt-0.5">${formatCurrency(item.value)}</div>
           <div class="text-[9px] text-slate-600 font-mono mt-0.5 truncate">
             IC: ${lowVal} - ${highVal}
           </div>
@@ -1019,7 +1442,7 @@
       const ctx = document.getElementById('mainChart').getContext('2d');
       if (mainChartInstance) mainChartInstance.destroy();
 
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
       const series = unit.series;
 
@@ -1048,27 +1471,28 @@
         const ciLowerData = series.map(d => d.type === 'proj' && d.ciLower ? d.ciLower * (1 + scenarioMultiplier) : null);
         const ciUpperData = series.map(d => d.type === 'proj' && d.ciUpper ? d.ciUpper * (1 + scenarioMultiplier) : null);
 
+        const palette = timelinePalette();
         const datasets = [
           {
-            label: 'Ingreso Real',
+            label: palette.realLabel,
             data: historicData,
-            borderColor: '#3b82f6',
-            backgroundColor: '#3b82f6',
+            borderColor: palette.real,
+            backgroundColor: palette.real,
             borderWidth: 2.5,
             pointRadius: 2.5,
             pointHoverRadius: 5,
             tension: 0.15
           },
           {
-            label: 'Proyección Modelo',
+            label: palette.projLabel,
             data: projectionData,
-            borderColor: '#10b981',
-            backgroundColor: '#10b981',
+            borderColor: palette.proj,
+            backgroundColor: palette.proj,
             borderWidth: 2.8,
             borderDash: [4, 4],
             pointRadius: 3.5,
             pointHoverRadius: 6,
-            pointBackgroundColor: '#10b981',
+            pointBackgroundColor: palette.proj,
             tension: 0.15
           }
         ];
@@ -1094,17 +1518,17 @@
             {
               label: 'Límite Superior IC 95%',
               data: ciUpperData,
-              borderColor: 'rgba(5, 150, 105, 0.45)',
+              borderColor: palette.ci,
               borderWidth: 1,
               pointRadius: 0,
               fill: '+1',
-              backgroundColor: 'rgba(5, 150, 105, 0.16)',
+              backgroundColor: palette.ciFill,
               tension: 0.2
             },
             {
               label: 'Límite Inferior IC 95%',
               data: ciLowerData,
-              borderColor: 'rgba(5, 150, 105, 0.45)',
+              borderColor: palette.ci,
               borderWidth: 1,
               pointRadius: 0,
               fill: false,
@@ -1247,18 +1671,22 @@
       const ctx = document.getElementById('seasonalityChart').getContext('2d');
       if (seasonalityChartInstance) seasonalityChartInstance.destroy();
 
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
 
       // In Global view, show Unit Contribution Doughnut or Monthly Distribution
       if (activeFacilityId === 'global') {
-        document.getElementById('seasonalChartTitle').textContent = 'Participación por Unidad (2027 Proy)';
-        document.getElementById('seasonalChartSubtitle').textContent = 'Aportación al ingreso total proyectado de $242.68M';
-
         const unitKeys = ['coapa', 'cuemanco', 'azc', 'tlalli', 'coacalco', 'com', 'izcalli', 'lasalle'];
-        const unitLabels = unitKeys.map(k => facilityDataStore[k].title.replace('Unidad Deportiva ', '').replace('Centro Olímpico Mexicano ', ''));
+        const store = metricStores[activeMetric];
+        document.getElementById('seasonalChartTitle').textContent = 'Participación por Unidad (2027 Proy)';
+        const total2027Units = unitKeys.reduce((acc, k) => acc + store[k].series.filter(d => d.year === 2027).reduce((a, c) => a + c.value, 0), 0);
+        document.getElementById('seasonalChartSubtitle').textContent = activeMetric === 'ingresos'
+          ? INGRESOS_COPY.seasonalGlobal
+          : `${isExampleView() ? 'Ejemplo: ' : ''}aportación al total proyectado de ${formatCurrency(total2027Units)}`;
+
+        const unitLabels = unitKeys.map(k => store[k].title.replace('Unidad Deportiva ', '').replace('Centro Olímpico Mexicano ', ''));
         const unitValues = unitKeys.map(k => {
-          return facilityDataStore[k].series.filter(d => d.year === 2027).reduce((acc, c) => acc + c.value, 0);
+          return store[k].series.filter(d => d.year === 2027).reduce((acc, c) => acc + c.value, 0);
         });
 
         const palette = ['#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f59e0b', '#14b8a6'];
@@ -1293,7 +1721,9 @@
         });
       } else {
         document.getElementById('seasonalChartTitle').textContent = 'Patrón Estacional Mensual';
-        document.getElementById('seasonalChartSubtitle').textContent = 'Promedio histórico y meses de máxima recaudación';
+        document.getElementById('seasonalChartSubtitle').textContent = activeMetric === 'ingresos'
+          ? INGRESOS_COPY.seasonalUnit
+          : (isExampleView() ? 'Promedio de la serie de ejemplo' : 'Promedio histórico y meses de mayor monto');
 
         const monthlyAverages = [];
         for (let m = 1; m <= 12; m++) {
@@ -1303,6 +1733,9 @@
         }
 
         const maxVal = Math.max(...monthlyAverages);
+        const barPeak = activeMetric === 'gasto' ? '#e11d48' : activeMetric === 'inversion' ? '#4f46e5' : '#059669';
+        const barRest = activeMetric === 'gasto' ? '#fecdd3' : activeMetric === 'inversion' ? '#c7d2fe' : '#94a3b8';
+        const barHover = activeMetric === 'gasto' ? '#be123c' : activeMetric === 'inversion' ? '#4338ca' : '#047857';
 
         seasonalityChartInstance = new Chart(ctx, {
           type: 'bar',
@@ -1311,9 +1744,9 @@
             datasets: [{
               label: 'Promedio Histórico Real',
               data: monthlyAverages,
-              backgroundColor: monthlyAverages.map(val => val === maxVal ? '#059669' : '#94a3b8'),
+              backgroundColor: monthlyAverages.map(val => val === maxVal ? barPeak : barRest),
               borderRadius: 6,
-              hoverBackgroundColor: '#047857'
+              hoverBackgroundColor: barHover
             }]
           },
           options: {
@@ -1352,7 +1785,7 @@
       const tbody = document.getElementById('dataTableBody');
       tbody.innerHTML = '';
 
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
       const series = unit.series;
 
@@ -1367,10 +1800,11 @@
         let yoyBadge = '-';
         if (row.year > 2024) {
           const prevYearMatch = series.find(d => d.year === (row.year - 1) && d.monthNum === row.monthNum);
-          if (prevYearMatch) {
+            if (prevYearMatch && prevYearMatch.value !== 0) {
             const pct = ((row.value - prevYearMatch.value) / prevYearMatch.value) * 100;
             const isPos = pct >= 0;
-            yoyBadge = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${isPos ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}">
+            const yoyTone = variationClasses(pct, 'yoy') || (isPos ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50');
+            yoyBadge = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${yoyTone}">
               ${isPos ? '↑ +' : '↓ '}${pct.toFixed(1)}%
             </span>`;
           }
@@ -1378,12 +1812,20 @@
 
         let typeBadge = '';
         if (row.type === 'proj') {
-          typeBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${row.year === 2027 ? 'bg-emerald-100 text-emerald-800' : 'bg-cyan-100 text-cyan-800'}">Pronóstico</span>`;
+          const projTone = activeMetric === 'gasto'
+            ? (row.year === 2027 ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900')
+            : activeMetric === 'inversion'
+              ? (row.year === 2027 ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700')
+              : (row.year === 2027 ? 'bg-emerald-100 text-emerald-800' : 'bg-cyan-100 text-cyan-800');
+          const projWord = isExampleView() ? 'Ejemplo' : 'Pronóstico';
+          typeBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${projTone}">${projWord}</span>`;
           if (unit.budgets && unit.budgets[row.date]) {
             typeBadge += `<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-purple-100 text-purple-800">Ppto: ${formatCurrency(unit.budgets[row.date])}</span>`;
           }
         } else {
-          typeBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700">Real</span>`;
+          typeBadge = isExampleView()
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-900">Ejemplo</span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700">Real</span>`;
         }
 
         const isProj = row.type === 'proj';
@@ -1392,12 +1834,26 @@
           : `<span class="text-slate-600">—</span>`;
 
         const tr = document.createElement('tr');
-        tr.className = isProj ? (row.year === 2027 ? 'bg-emerald-50 hover:bg-emerald-100' : 'bg-cyan-50 hover:bg-cyan-100') : 'hover:bg-slate-100';
+        const rowTone = !isProj
+          ? 'hover:bg-slate-100'
+          : activeMetric === 'gasto'
+            ? (row.year === 2027 ? 'bg-rose-50 hover:bg-rose-100' : 'bg-amber-50 hover:bg-amber-100')
+            : activeMetric === 'inversion'
+              ? (row.year === 2027 ? 'bg-indigo-50 hover:bg-indigo-100' : 'hover:bg-slate-100')
+              : (row.year === 2027 ? 'bg-emerald-50 hover:bg-emerald-100' : 'bg-cyan-50 hover:bg-cyan-100');
+        tr.className = rowTone;
+        const amountTone = !isProj
+          ? 'text-slate-900'
+          : activeMetric === 'gasto'
+            ? 'text-rose-800'
+            : activeMetric === 'inversion'
+              ? 'text-indigo-800'
+              : 'text-emerald-700';
         tr.innerHTML = `
           <td class="py-2.5 px-4 font-mono font-bold text-slate-800">${row.label}</td>
           <td class="py-2.5 px-4 text-slate-600">${row.year}</td>
           <td class="py-2.5 px-4 text-slate-700">${row.month}</td>
-          <td class="py-2.5 px-4 text-right font-mono font-bold ${isProj ? 'text-emerald-700' : 'text-slate-900'}">
+          <td class="py-2.5 px-4 text-right font-mono font-bold ${amountTone}">
             ${formatCurrencyDetailed(row.value)}
           </td>
           <td class="py-2.5 px-4 text-center">${typeBadge}</td>
@@ -1415,9 +1871,7 @@
       const val = parseInt(e.target.value, 10);
       scenarioMultiplier = val / 100.0;
       sliderBadge.textContent = `${val >= 0 ? '+' : ''}${val}% ${val === 0 ? '(Base)' : ''}`;
-      sliderBadge.className = `text-sm font-bold font-mono px-2.5 py-1 rounded bg-white border border-slate-300 ${
-        val > 0 ? 'text-emerald-700' : val < 0 ? 'text-rose-700' : 'text-slate-800'
-      }`;
+      sliderBadge.className = `text-sm font-bold font-mono px-2.5 py-1 rounded bg-white border border-slate-300 ${scenarioValueClass(val, true)}`;
       updateCalculations();
     });
 
@@ -1425,7 +1879,7 @@
       slider.value = 0;
       scenarioMultiplier = 0.0;
       sliderBadge.textContent = '0% (Base)';
-      sliderBadge.className = 'text-sm font-bold font-mono px-2.5 py-1 rounded bg-white text-emerald-700 border border-slate-300';
+      sliderBadge.className = `text-sm font-bold font-mono px-2.5 py-1 rounded bg-white border border-slate-300 ${scenarioValueClass(0, false)}`;
       updateCalculations();
       showToast('Escenario restablecido a pronóstico base');
     });
@@ -1476,10 +1930,11 @@
 
     // CSV Export
     document.getElementById('btnExportCSV').addEventListener('click', () => {
-      const unit = facilityDataStore[activeFacilityId];
+      const unit = viewUnit();
       if (!unit) return;
 
-      let csv = 'Periodo,Anio,Mes,Ingreso_MXN,Tipo,IC_Inferior,IC_Superior\n';
+      const valueHeader = activeMetric === 'ingresos' ? 'Ingreso_MXN' : `${activeMetric}_MXN`;
+      let csv = `Periodo,Anio,Mes,${valueHeader},Tipo,IC_Inferior,IC_Superior\n`;
       unit.series.forEach(r => {
         const val = r.value.toFixed(2);
         const low = r.ciLower ? (r.ciLower * (1 + scenarioMultiplier)).toFixed(2) : '';
@@ -1490,8 +1945,10 @@
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
+      const ejemploMark = isExampleView() ? 'ejemplo_' : '';
+      const fileMetric = activeMetric === 'ingresos' ? 'ingresos' : activeMetric;
       link.setAttribute('href', url);
-      link.setAttribute('download', `reporte_ingresos_${activeFacilityId}_2024_2027.csv`);
+      link.setAttribute('download', `reporte_${fileMetric}_${ejemploMark}${activeFacilityId}_2024_2027.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1509,6 +1966,46 @@
 
     // Print Report
     document.getElementById('btnPrintReport').addEventListener('click', () => window.print());
+
+    function setMetric(metricId) {
+      if (!metricStores[metricId] && !(metricStatus[metricId] && metricStatus[metricId].pendiente)) return;
+      activeMetric = metricId;
+      paintMetricButtons();
+      const status = metricStatus[metricId] || { ejemplo: false, pendiente: false, mensaje: '' };
+      const exampleBanner = document.getElementById('exampleBanner');
+      const pendingBanner = document.getElementById('pendingBanner');
+      const metricBody = document.getElementById('metricBody');
+      exampleBanner.classList.toggle('hidden', !status.ejemplo);
+      exampleBanner.hidden = !status.ejemplo;
+      pendingBanner.classList.toggle('hidden', !status.pendiente);
+      pendingBanner.hidden = !status.pendiente;
+      metricBody.classList.toggle('hidden', !!status.pendiente);
+      metricBody.hidden = !!status.pendiente;
+      if (status.pendiente) {
+        document.getElementById('pendingBannerText').textContent = status.mensaje;
+        if (mainChartInstance) { mainChartInstance.destroy(); mainChartInstance = null; }
+        if (seasonalityChartInstance) { seasonalityChartInstance.destroy(); seasonalityChartInstance = null; }
+        paintSliderEnds();
+        return;
+      }
+      updateFacilityView();
+      const sliderVal = parseInt(document.getElementById('scenarioSlider').value, 10) || 0;
+      const badge = document.getElementById('scenarioValueBadge');
+      if (sliderVal === 0 && activeMetric === 'ingresos') {
+        badge.textContent = '0% (Base)';
+        badge.className = 'text-sm font-bold font-mono px-2.5 py-1 rounded bg-white text-emerald-700 border border-slate-300';
+      } else {
+        badge.textContent = `${sliderVal >= 0 ? '+' : ''}${sliderVal}% ${sliderVal === 0 ? '(Base)' : ''}`;
+        badge.className = `text-sm font-bold font-mono px-2.5 py-1 rounded bg-white border border-slate-300 ${scenarioValueClass(sliderVal, sliderVal !== 0)}`;
+      }
+    }
+
+    document.querySelectorAll('.metric-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const next = btn.getAttribute('data-metric');
+        if (next !== activeMetric) setMetric(next);
+      });
+    });
 
     // Initial Boot
     window.addEventListener('DOMContentLoaded', () => {
